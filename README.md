@@ -2,4 +2,4 @@
 
 ## Database ERD
 
-![](/fsurvey/image/pgerd.png)
+![](/FSurvey/image/pgerd.png)
