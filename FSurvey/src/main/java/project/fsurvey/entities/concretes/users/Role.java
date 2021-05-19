@@ -1,7 +1,9 @@
 package project.fsurvey.entities.concretes.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import project.fsurvey.entities.abstracts.User;
 
 import javax.persistence.*;
 
@@ -21,4 +23,9 @@ public class Role implements GrantedAuthority {
     public String getAuthority() {
         return authority;
     }
+
+    @ManyToOne
+    @JoinColumn
+    @JsonIgnoreProperties("authorities")
+    private User user;
 }

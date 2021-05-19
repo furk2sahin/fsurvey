@@ -2,6 +2,8 @@ package project.fsurvey.entities.concretes.users;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import project.fsurvey.entities.abstracts.User;
 import project.fsurvey.entities.concretes.survey.Answer;
 
@@ -26,7 +28,7 @@ public class Participant extends User {
     @Column(nullable = false)
     private String birthYear;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(referencedColumnName = "id", name = "user_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "participant")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Answer> answers;
 }

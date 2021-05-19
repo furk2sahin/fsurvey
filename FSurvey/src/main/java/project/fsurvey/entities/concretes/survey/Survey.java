@@ -1,6 +1,8 @@
 package project.fsurvey.entities.concretes.survey;
 
 import lombok.Data;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -28,6 +30,7 @@ public class Survey {
     @CreatedDate
     private Date createDate;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "survey")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "survey")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Issue> issues;
 }

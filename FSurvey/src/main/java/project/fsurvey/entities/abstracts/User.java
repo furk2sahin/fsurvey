@@ -1,6 +1,8 @@
 package project.fsurvey.entities.abstracts;
 
 import lombok.Data;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,10 +35,9 @@ public abstract class User implements UserDetails {
     @CreatedDate
     private Date createDate;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(referencedColumnName = "id", name = "user_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Set<Role> authorities;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

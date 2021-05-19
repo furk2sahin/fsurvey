@@ -2,9 +2,7 @@ package project.fsurvey.entities.concretes.survey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.entities.concretes.survey.Issue;
-import project.fsurvey.entities.concretes.survey.Survey;
+import project.fsurvey.entities.concretes.users.Participant;
 
 import javax.persistence.*;
 
@@ -19,6 +17,12 @@ public class Answer {
 
     @ManyToOne
     @JoinColumn
+    @JsonIgnoreProperties("answers")
+    private Participant participant;
+
+    @ManyToOne
+    @JoinColumn
+    @JsonIgnoreProperties("issues")
     private Survey survey;
 
     @ManyToOne
@@ -28,6 +32,6 @@ public class Answer {
 
     @ManyToOne
     @JoinColumn
-    @JsonIgnoreProperties({"question"})
+    @JsonIgnoreProperties({"issue"})
     private Option option;
 }

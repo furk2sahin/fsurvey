@@ -2,6 +2,8 @@ package project.fsurvey.entities.concretes.survey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.List;
@@ -26,9 +28,11 @@ public class Issue {
     @JsonIgnoreProperties("issues")
     private Survey survey;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "issue")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "issue")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Option> options;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "issue")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "issue")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Answer> answers;
 }
