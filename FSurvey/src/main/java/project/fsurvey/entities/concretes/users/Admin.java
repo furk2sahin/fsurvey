@@ -1,7 +1,6 @@
 package project.fsurvey.entities.concretes.users;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import project.fsurvey.entities.abstracts.User;
 
 import javax.persistence.Column;
@@ -12,6 +11,8 @@ import javax.persistence.Table;
 @Entity
 @Data
 @Table(name = "admins")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Admin extends User {
     @Column(nullable = false)
     private String name;

@@ -21,7 +21,7 @@ public class Option {
     private int optionOrder;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "issue_id", nullable = false)
     @JsonIgnoreProperties({"options", "survey"})
     private Issue issue;
 }

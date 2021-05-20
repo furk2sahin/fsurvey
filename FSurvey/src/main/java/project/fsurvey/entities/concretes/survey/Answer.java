@@ -16,22 +16,22 @@ public class Answer {
     private Long id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "participant_id", nullable = false)
     @JsonIgnoreProperties("answers")
     private Participant participant;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "survey_id", nullable = false)
     @JsonIgnoreProperties("issues")
     private Survey survey;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "issue_id", nullable = false)
     @JsonIgnoreProperties({"answers", "options", "survey"})
     private Issue issue;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "option_id", nullable = false)
     @JsonIgnoreProperties({"issue"})
     private Option option;
 }

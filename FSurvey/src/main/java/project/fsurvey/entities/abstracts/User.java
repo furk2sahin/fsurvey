@@ -1,30 +1,32 @@
 package project.fsurvey.entities.abstracts;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import project.fsurvey.entities.concretes.users.Role;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User implements UserDetails {
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID uuid;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -32,12 +34,16 @@ public abstract class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @CreatedDate
+    @CreationTimestamp
     private Date createDate;
+
+    @Column(nullable = false)
+    private String role;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Set<Role> authorities;
+    @JsonIgnoreProperties("user")
+    private Set<Role> authorities = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
