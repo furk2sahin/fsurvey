@@ -16,22 +16,23 @@ public class Answer {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "participant_id", nullable = false)
-    @JsonIgnoreProperties("answers")
+    @JoinColumn(name = "participant_id")
+    @JsonIgnoreProperties({"answers", "username", "password", "role", "authorities", "nationalIdentity",
+            "accountNonLocked", "credentialsNonExpired", "accountNonExpired", "enabled"})
     private Participant participant;
 
     @ManyToOne
-    @JoinColumn(name = "survey_id", nullable = false)
+    @JoinColumn(name = "survey_id")
     @JsonIgnoreProperties("issues")
     private Survey survey;
 
     @ManyToOne
-    @JoinColumn(name = "issue_id", nullable = false)
+    @JoinColumn(name = "issue_id")
     @JsonIgnoreProperties({"answers", "options", "survey"})
     private Issue issue;
 
     @ManyToOne
-    @JoinColumn(name = "option_id", nullable = false)
+    @JoinColumn(name = "option_id")
     @JsonIgnoreProperties({"issue"})
     private Option option;
 }

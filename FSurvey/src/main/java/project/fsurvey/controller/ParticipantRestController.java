@@ -6,11 +6,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.fsurvey.business.concretes.AdminManager;
-import project.fsurvey.business.concretes.ParticipantManager;
-import project.fsurvey.dto.AdminDto;
+import project.fsurvey.business.abstracts.ParticipantService;
 import project.fsurvey.dto.ParticipantDto;
-import project.fsurvey.entities.concretes.users.Admin;
 import project.fsurvey.entities.concretes.users.Participant;
 import project.fsurvey.exception.NotFoundException;
 import project.fsurvey.exception.ParameterException;
@@ -23,17 +20,17 @@ import java.util.UUID;
 @RequestMapping("/api/v1/participant")
 public class ParticipantRestController {
 
-    private ParticipantManager participantManager;
+    private ParticipantService participantService;
 
     @Autowired
-    public ParticipantRestController(ParticipantManager participantManager) {
-        this.participantManager = participantManager;
+    public ParticipantRestController(ParticipantService participantService) {
+        this.participantService = participantService;
     }
 
-    @GetMapping("/find-by-uuid")
-    public ResponseEntity<Object> findByUuid(@RequestParam("uuid") UUID uuid){
+    @GetMapping("/find-by-uuid/{uuid}")
+    public ResponseEntity<Object> findByUuid(@PathVariable("uuid") UUID uuid){
         try{
-            return ResponseEntity.ok(participantManager.findByUUID(uuid));
+            return ResponseEntity.ok(participantService.findByUUID(uuid));
         } catch (NotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given uuid.");
         }
@@ -52,7 +49,7 @@ public class ParticipantRestController {
         if(!Strings.isNullOrEmpty(participant.getRole()))
             participant.setAuthorities(RoleParser.parse(participant.getRole().split(","), participant));
         try{
-            return ResponseEntity.ok(participantManager.add(participant));
+            return ResponseEntity.ok(participantService.add(participant));
         } catch (ParameterException | UserVerificationException e){
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
         } catch (Exception e){
@@ -60,26 +57,25 @@ public class ParticipantRestController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Object> update(@RequestParam("id") Long id, @RequestBody ParticipantDto participantDto){
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody ParticipantDto participantDto){
         Participant participant = new Participant();
         participant.setUsername(participantDto.getUsername());
         participant.setPassword(participantDto.getPassword());
         try{
-            return ResponseEntity.ok(participantManager.update(id, participant));
+            return ResponseEntity.ok(participantService.update(id, participant));
         } catch (NotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given id.");
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> delete(@RequestParam("id") Long id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
         try{
-            participantManager.delete(id);
+            participantService.delete(id);
             return ResponseEntity.ok("Participant successfully deleted.");
         } catch (EmptyResultDataAccessException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given id");
         }
     }
-
 }

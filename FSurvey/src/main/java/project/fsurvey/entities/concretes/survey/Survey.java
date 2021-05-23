@@ -1,12 +1,11 @@
 package project.fsurvey.entities.concretes.survey;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.springframework.data.annotation.CreatedDate;
-
 import javax.persistence.*;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,16 +20,11 @@ public class Survey {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private int questionCount;
-
     @Column
-    private int descripton;
-
-    @CreatedDate
-    private Date createDate;
+    private String description;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "survey")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<Issue> issues;
+    @JsonIgnoreProperties("survey")
+    private List<Issue> issues  = new ArrayList<>();
 }

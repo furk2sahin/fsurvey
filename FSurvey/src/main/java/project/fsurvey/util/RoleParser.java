@@ -11,6 +11,10 @@ import static project.fsurvey.permissions.UserRole.*;
 
 public class RoleParser {
 
+    private RoleParser(){
+
+    }
+
     public static Set<Role> parse(String[] roles, User user){
         Set<Role> authorities = new HashSet<>();
         for(String role : roles){

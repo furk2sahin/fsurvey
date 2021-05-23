@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.fsurvey.business.concretes.AdminManager;
+import project.fsurvey.business.abstracts.AdminService;
 import project.fsurvey.dto.AdminDto;
 import project.fsurvey.entities.concretes.users.Admin;
 import project.fsurvey.exception.NotFoundException;
@@ -20,17 +20,17 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin")
 public class AdminRestController {
 
-    private AdminManager adminManager;
+    private AdminService adminService;
 
     @Autowired
-    public AdminRestController(AdminManager adminManager) {
-        this.adminManager = adminManager;
+    public AdminRestController(AdminService adminService) {
+        this.adminService = adminService;
     }
 
-    @GetMapping("/find-by-uuid")
-    public ResponseEntity<Object> findByUuid(@RequestParam("uuid") UUID uuid){
+    @GetMapping("/find-by-uuid/{uuid}")
+    public ResponseEntity<Object> findByUuid(@PathVariable("uuid") UUID uuid){
         try{
-            return ResponseEntity.ok(adminManager.findByUUID(uuid));
+            return ResponseEntity.ok(adminService.findByUUID(uuid));
         } catch (NotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin not found with given uuid.");
         }
@@ -49,7 +49,7 @@ public class AdminRestController {
         if(!Strings.isNullOrEmpty(admin.getRole()))
             admin.setAuthorities(RoleParser.parse(admin.getRole().split(","), admin));
         try{
-            return ResponseEntity.ok(adminManager.add(admin));
+            return ResponseEntity.ok(adminService.add(admin));
         } catch (ParameterException | UserVerificationException e){
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
         } catch (Exception e){
@@ -57,26 +57,25 @@ public class AdminRestController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Object> update(@RequestParam("id") Long id, @RequestBody AdminDto adminDto){
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody AdminDto adminDto){
         Admin admin = new Admin();
         admin.setUsername(adminDto.getUsername());
         admin.setPassword(adminDto.getPassword());
         try{
-            return ResponseEntity.ok(adminManager.update(id, admin));
+            return ResponseEntity.ok(adminService.update(id, admin));
         } catch (NotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin not found with given id.");
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> delete(@RequestParam("id") Long id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
         try{
-            adminManager.delete(id);
+            adminService.delete(id);
             return ResponseEntity.ok("Admin successfully deleted.");
         } catch (EmptyResultDataAccessException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin not found with given id");
         }
     }
-
 }

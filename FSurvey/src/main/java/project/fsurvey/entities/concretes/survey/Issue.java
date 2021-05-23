@@ -6,6 +6,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,15 +25,17 @@ public class Issue {
     private int issueOrder;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_issue_survey"))
     @JsonIgnoreProperties("issues")
     private Survey survey;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "issue")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<Option> options;
+    @JsonIgnoreProperties("issue")
+    private List<Option> options = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "issue")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<Answer> answers;
+    @JsonIgnoreProperties("issue")
+    private List<Answer> answers = new ArrayList<>();
 }
