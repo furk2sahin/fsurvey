@@ -1,16 +1,15 @@
 package project.fsurvey.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.AnswerService;
 import project.fsurvey.entities.concretes.survey.Answer;
-import project.fsurvey.entities.concretes.survey.Issue;
-import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/answer")
@@ -33,7 +32,7 @@ public class AnswerRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody Answer answer){
+    public ResponseEntity<Object> add(@RequestBody @Valid Answer answer){
         try{
             return ResponseEntity.ok(answerService.add(answer));
         } catch (ParameterException | NotFoundException e){
@@ -64,7 +63,7 @@ public class AnswerRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody Answer answer){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Answer answer){
         try{
             return ResponseEntity.ok(answerService.update(id, answer));
         }  catch (ParameterException | NotFoundException e){

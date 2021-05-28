@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.ParticipantService;
 import project.fsurvey.dto.ParticipantDto;
 import project.fsurvey.entities.concretes.users.Participant;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
-import project.fsurvey.exception.UserVerificationException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
+import project.fsurvey.core.exception.UserVerificationException;
 import project.fsurvey.util.RoleParser;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -37,7 +38,7 @@ public class ParticipantRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody ParticipantDto participantDto){
+    public ResponseEntity<Object> add(@RequestBody @Valid ParticipantDto participantDto){
         Participant participant = new Participant();
         participant.setName(participantDto.getName());
         participant.setBirthYear(participantDto.getBirthYear());
@@ -58,7 +59,8 @@ public class ParticipantRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody ParticipantDto participantDto){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id,
+                                         @RequestBody @Valid ParticipantDto participantDto){
         Participant participant = new Participant();
         participant.setUsername(participantDto.getUsername());
         participant.setPassword(participantDto.getPassword());

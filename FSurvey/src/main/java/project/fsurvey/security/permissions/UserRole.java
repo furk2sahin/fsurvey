@@ -1,4 +1,4 @@
-package project.fsurvey.permissions;
+package project.fsurvey.security.permissions;
 
 import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static project.fsurvey.permissions.Permission.*;
+import static project.fsurvey.security.permissions.Permission.*;
 
 public enum UserRole {
     ADMIN(Sets.newHashSet(READ_SURVEY, READ_OPTION, READ_ISSUE, READ_ANSWER, READ_PARTICIPANT)),

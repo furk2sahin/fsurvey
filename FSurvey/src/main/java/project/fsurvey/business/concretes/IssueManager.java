@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import project.fsurvey.business.abstracts.IssueService;
 import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.entities.concretes.survey.Survey;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
 import project.fsurvey.repositories.IssueRepository;
 import project.fsurvey.repositories.SurveyRepository;
 

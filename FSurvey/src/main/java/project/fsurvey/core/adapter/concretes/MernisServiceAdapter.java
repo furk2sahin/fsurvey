@@ -1,7 +1,7 @@
-package project.fsurvey.adapter.concretes;
+package project.fsurvey.core.adapter.concretes;
 
 import org.springframework.stereotype.Service;
-import project.fsurvey.adapter.abstracts.UserVerificationService;
+import project.fsurvey.core.adapter.abstracts.UserVerificationService;
 import project.fsurvey.mernis.CUKKPSPublicSoap;
 
 import java.util.Locale;

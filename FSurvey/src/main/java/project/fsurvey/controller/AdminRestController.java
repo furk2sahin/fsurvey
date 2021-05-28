@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.AdminService;
 import project.fsurvey.dto.AdminDto;
 import project.fsurvey.entities.concretes.users.Admin;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
-import project.fsurvey.exception.UserVerificationException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
+import project.fsurvey.core.exception.UserVerificationException;
 import project.fsurvey.util.RoleParser;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -37,7 +38,7 @@ public class AdminRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody AdminDto adminDto){
+    public ResponseEntity<Object> add(@RequestBody @Valid AdminDto adminDto){
         Admin admin = new Admin();
         admin.setName(adminDto.getName());
         admin.setBirthYear(adminDto.getBirthYear());
@@ -58,7 +59,7 @@ public class AdminRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody AdminDto adminDto){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid AdminDto adminDto){
         Admin admin = new Admin();
         admin.setUsername(adminDto.getUsername());
         admin.setPassword(adminDto.getPassword());

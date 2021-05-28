@@ -1,4 +1,4 @@
-package project.fsurvey.permissions;
+package project.fsurvey.security.permissions;
 
 public enum Permission {
     READ_SURVEY("read:survey"),

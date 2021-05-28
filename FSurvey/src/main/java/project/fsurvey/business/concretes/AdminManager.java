@@ -4,12 +4,12 @@ import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import project.fsurvey.adapter.abstracts.UserVerificationService;
+import project.fsurvey.core.adapter.abstracts.UserVerificationService;
 import project.fsurvey.business.abstracts.AdminService;
 import project.fsurvey.entities.concretes.users.Admin;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
-import project.fsurvey.exception.UserVerificationException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
+import project.fsurvey.core.exception.UserVerificationException;
 import project.fsurvey.repositories.AdminRepository;
 
 import java.util.UUID;

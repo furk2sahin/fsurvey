@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/option")
@@ -31,7 +33,7 @@ public class OptionRestController {
     }
 
     @PostMapping("/add/{issueId}")
-    public ResponseEntity<Object> add(@PathVariable("issueId") Long issueId, @RequestBody Option option){
+    public ResponseEntity<Object> add(@PathVariable("issueId") Long issueId, @RequestBody @Valid Option option){
         try{
             return ResponseEntity.ok(optionService.add(issueId, option));
         } catch (ParameterException e){
@@ -42,7 +44,7 @@ public class OptionRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody Option option){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Option option){
         try{
             return ResponseEntity.ok(optionService.update(id, option));
         } catch (NotFoundException e){

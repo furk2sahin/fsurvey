@@ -10,9 +10,10 @@ import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.business.abstracts.SurveyService;
 import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.entities.concretes.survey.Survey;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,9 @@ public class SurveyRestController {
     private OptionService optionService;
 
     @Autowired
-    public SurveyRestController(SurveyService surveyService, IssueService issueService, OptionService optionService) {
+    public SurveyRestController(SurveyService surveyService,
+                                IssueService issueService,
+                                OptionService optionService) {
         this.surveyService = surveyService;
         this.issueService = issueService;
         this.optionService = optionService;
@@ -40,7 +43,7 @@ public class SurveyRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody Survey survey){
+    public ResponseEntity<Object> add(@RequestBody @Valid Survey survey){
         try{
             Survey addedSurvey = surveyService.add(survey);
             List<Issue> issues = issueService.addAll(addedSurvey.getId(), survey.getIssues());
@@ -54,7 +57,7 @@ public class SurveyRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody Survey survey){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Survey survey){
         try{
             return ResponseEntity.ok(surveyService.update(id, survey));
         } catch (NotFoundException e){

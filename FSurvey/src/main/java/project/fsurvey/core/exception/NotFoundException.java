@@ -1,4 +1,4 @@
-package project.fsurvey.exception;
+package project.fsurvey.core.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

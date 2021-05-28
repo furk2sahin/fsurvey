@@ -1,4 +1,4 @@
-package project.fsurvey.adapter.abstracts;
+package project.fsurvey.core.adapter.abstracts;
 
 public interface UserVerificationService {
 

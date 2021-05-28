@@ -7,7 +7,7 @@ import project.fsurvey.entities.concretes.users.Role;
 import java.util.HashSet;
 import java.util.Set;
 
-import static project.fsurvey.permissions.UserRole.*;
+import static project.fsurvey.security.permissions.UserRole.*;
 
 public class RoleParser {
 

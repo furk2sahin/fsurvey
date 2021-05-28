@@ -9,8 +9,8 @@ import project.fsurvey.business.abstracts.IssueService;
 import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.business.abstracts.SurveyService;
 import project.fsurvey.entities.concretes.survey.Issue;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class IssueRestController {
     }
 
     @PostMapping("/add-all/{surveyId}")
-    public ResponseEntity<Object> addAll(@PathVariable("surveyId") Long surveyId, @RequestBody List<Issue> issues){
+    public ResponseEntity<Object> addAll(@PathVariable("surveyId") Long surveyId, @RequestBody @Valid List<Issue> issues){
         try{
             List<Issue> savedIssues = issueService.addAll(surveyId, issues);
             issues.forEach(issue -> optionService.addAll(issue.getId(), issue.getOptions()));
@@ -66,7 +66,7 @@ public class IssueRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody Issue issue){
+    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Issue issue){
         try{
             return ResponseEntity.ok(issueService.update(id, issue));
         } catch (NotFoundException e){

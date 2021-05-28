@@ -2,13 +2,12 @@ package project.fsurvey.business.concretes;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import project.fsurvey.business.abstracts.AnswerService;
 import project.fsurvey.entities.concretes.survey.Answer;
 import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.exception.NotFoundException;
-import project.fsurvey.exception.ParameterException;
+import project.fsurvey.core.exception.NotFoundException;
+import project.fsurvey.core.exception.ParameterException;
 import project.fsurvey.repositories.*;
 
 import java.util.List;
