@@ -20,7 +20,7 @@ public class FsurveyApplication {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("project.fsurvey"))
+                .apis(RequestHandlerSelectors.basePackage("project.fsurvey.controller.rest"))
                 .build();
     }
 }

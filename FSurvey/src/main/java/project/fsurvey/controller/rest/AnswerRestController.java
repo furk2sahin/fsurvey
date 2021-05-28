@@ -1,4 +1,4 @@
-package project.fsurvey.controller;
+package project.fsurvey.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package project.fsurvey.controller;
+package project.fsurvey.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,6 +12,7 @@ import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.core.exception.NotFoundException;
 import project.fsurvey.core.exception.ParameterException;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController

@@ -1,4 +1,4 @@
-package project.fsurvey.controller;
+package project.fsurvey.controller.rest;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import project.fsurvey.entities.concretes.users.Admin;
 import project.fsurvey.core.exception.NotFoundException;
 import project.fsurvey.core.exception.ParameterException;
 import project.fsurvey.core.exception.UserVerificationException;
-import project.fsurvey.util.RoleParser;
+import project.fsurvey.core.util.RoleParser;
 
 import javax.validation.Valid;
 import java.util.UUID;

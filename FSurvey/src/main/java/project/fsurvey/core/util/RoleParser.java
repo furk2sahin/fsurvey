@@ -1,4 +1,4 @@
-package project.fsurvey.util;
+package project.fsurvey.core.util;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import project.fsurvey.entities.abstracts.User;
