@@ -2,12 +2,15 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import project.fsurvey.business.abstracts.IssueService;
 import project.fsurvey.business.abstracts.OptionService;
+import project.fsurvey.core.results.*;
+import project.fsurvey.dtos.OptionDto;
 import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.repositories.IssueRepository;
+import project.fsurvey.mapper.OptionMapper;
 import project.fsurvey.repositories.OptionRepository;
 
 import java.util.List;
@@ -16,53 +19,84 @@ import java.util.List;
 public class OptionManager implements OptionService {
 
     private OptionRepository optionRepository;
-    private IssueRepository issueRepository;
+    private IssueService issueService;
+    private OptionMapper optionMapper;
 
     @Autowired
-    public OptionManager(OptionRepository optionRepository, IssueRepository issueRepository) {
+    public OptionManager(OptionRepository optionRepository,
+                         IssueService issueService,
+                         OptionMapper optionMapper) {
         this.optionRepository = optionRepository;
-        this.issueRepository = issueRepository;
+        this.issueService = issueService;
+        this.optionMapper = optionMapper;
     }
 
     @Override
-    public void addAll(Long issueId, List<Option> options) {
-        Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new NotFoundException("Issue not found with given id."));
-        options.stream().forEach(option -> option.setIssue(issue));
-        optionRepository.saveAll(options);
+    public ResponseEntity<DataResult<Option>> add(OptionDto optionDto) {
+        DataResult<Issue> result = issueService.findById(optionDto.getIssueId()).getBody();
+        if(!result.isSuccess())
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(
+                    "No Issue found with given id: " + optionDto.getIssueId()
+            ));
+
+        Option option = optionMapper.toEntity(optionDto);
+        return ResponseEntity.ok(new SuccessDataResult<>(optionRepository.save(option)));
     }
 
     @Override
-    public Option add(Long issueId, Option option) {
-        option.setIssue(issueRepository.findById(issueId)
-                .orElseThrow(() -> new NotFoundException("Issue not found with given id.")));
-        return optionRepository.save(option);
-    }
+    public ResponseEntity<DataResult<Option>> update(Long id, OptionDto optionDto) {
+        Option optionToUpdate = optionRepository.findById(id).orElse(null);
+        if(optionToUpdate == null)
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No option found with given id" + id));
 
-    @Override
-    public Option update(Long id, Option option) {
-        Option optionToUpdate = optionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Option not found."));
-        if(!Strings.isNullOrEmpty(option.getAnswer()) &&
-                !optionToUpdate.getAnswer().equals(option.getAnswer())){
-            optionToUpdate.setAnswer(option.getAnswer());
+        if(!Strings.isNullOrEmpty(optionDto.getAnswer()) &&
+                !optionToUpdate.getAnswer().equals(optionDto.getAnswer())){
+            optionToUpdate.setAnswer(optionDto.getAnswer());
+            return ResponseEntity.ok(new SuccessDataResult<>(
+                    optionRepository.save(optionToUpdate),
+                    "Option updated successfully.")
+            );
         }
-        return optionRepository.save(optionToUpdate);
+        return ResponseEntity.badRequest().body(new ErrorDataResult<>("No changes."));
     }
 
     @Override
-    public void delete(Long id) {
+    public ResponseEntity<Result> delete(Long id) {
+        if(!optionRepository.existsById(id))
+            return ResponseEntity.ok(new ErrorResult("No data found with given id"));
         optionRepository.deleteById(id);
+        return ResponseEntity.ok(new SuccessResult("Option successfully deleted with given id"));
     }
 
     @Override
-    public Option findById(Long id) {
-        return optionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Option not found with given id."));
+    public ResponseEntity<DataResult<Option>> findById(Long id) {
+        Option option = optionRepository.findById(id).orElse(null);
+        if(option == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Option not found with id " + id));
+        }
+        return ResponseEntity.ok(new SuccessDataResult<>(option, "Data found."));
     }
 
     @Override
-    public List<Option> findByIssueId(Long issueId) {
-        return optionRepository.findAllByIssueId(issueId);
+    public ResponseEntity<DataResult<List<Option>>> findByIssueId(Long issueId) {
+        List<Option> options = optionRepository.findAllByIssueId(issueId);
+        if(options.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(
+                    "No answer were found by given issue id " + issueId)
+            );
+        }
+        return ResponseEntity.ok(new SuccessDataResult<>(options, "Answers listed by issue id " + issueId));
+    }
+
+    @Override
+    public ResponseEntity<DataResult<List<Option>>> addAll(List<OptionDto> optionDtos) {
+        if(optionDtos.isEmpty())
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Unable to add"));
+
+        List<Option> options = optionMapper.toEntities(optionDtos);
+        return ResponseEntity.ok(new SuccessDataResult<>(
+                optionRepository.saveAll(options),
+                "Options added successfully.")
+        );
     }
 }

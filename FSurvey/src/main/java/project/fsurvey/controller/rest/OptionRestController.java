@@ -1,16 +1,17 @@
 package project.fsurvey.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.OptionService;
+import project.fsurvey.core.results.DataResult;
+import project.fsurvey.core.results.Result;
+import project.fsurvey.dtos.OptionDto;
 import project.fsurvey.entities.concretes.survey.Option;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
+
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/option")
@@ -24,46 +25,27 @@ public class OptionRestController {
     }
 
     @GetMapping("/find-by-id/{id}")
-    public ResponseEntity<Object> findById(@PathVariable("id") Long id){
-        try{
-            return ResponseEntity.ok(optionService.findById(id));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Option not found with given id.");
-        }
+    public ResponseEntity<DataResult<Option>> findById(@PathVariable("id") Long id){
+        return optionService.findById(id);
     }
 
     @PostMapping("/add/{issueId}")
-    public ResponseEntity<Object> add(@PathVariable("issueId") Long issueId, @RequestBody @Valid Option option){
-        try{
-            return ResponseEntity.ok(optionService.add(issueId, option));
-        } catch (ParameterException e){
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when creating Issue");
-        }
+    public ResponseEntity<DataResult<Option>> add(@RequestBody @Valid OptionDto optionDto){
+        return optionService.add(optionDto);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Option option){
-        try{
-            return ResponseEntity.ok(optionService.update(id, option));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Survey not found with given id.");
-        }
+    public ResponseEntity<DataResult<Option>> update(@PathVariable("id") Long id, @RequestBody @Valid OptionDto optionDto){
+        return optionService.update(id, optionDto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id){
-        try{
-            optionService.delete(id);
-            return ResponseEntity.ok("Option successfully deleted.");
-        } catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Option not found with given id");
-        }
+    public ResponseEntity<Result> delete(@PathVariable("id") Long id){
+        return optionService.delete(id);
     }
 
     @GetMapping("/find-by-issue-id/{id}")
-    public ResponseEntity<Object> findByIssueId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(optionService.findByIssueId(id));
+    public ResponseEntity<DataResult<List<Option>>> findByIssueId(@PathVariable("id") Long id){
+        return optionService.findByIssueId(id);
     }
 }

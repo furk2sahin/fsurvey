@@ -2,77 +2,103 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.fsurvey.core.adapter.abstracts.UserVerificationService;
-import project.fsurvey.business.abstracts.ParticipantService;
+import project.fsurvey.core.results.*;
+import project.fsurvey.core.util.RoleParser;
+import project.fsurvey.dtos.UserDto;
+import project.fsurvey.dtos.UserGetDto;
 import project.fsurvey.entities.concretes.users.Participant;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
-import project.fsurvey.core.exception.UserVerificationException;
+import project.fsurvey.mapper.ParticipantMapper;
 import project.fsurvey.repositories.ParticipantRepository;
 
-import java.util.UUID;
-
 @Service
-public class ParticipantManager implements ParticipantService {
+public class ParticipantManager implements project.fsurvey.business.abstracts.ParticipantService {
 
     private ParticipantRepository participantRepository;
     private UserVerificationService userVerificationService;
     private PasswordEncoder passwordEncoder;
+    private final ParticipantMapper participantMapper;
+
 
     @Autowired
     public ParticipantManager(ParticipantRepository participantRepository,
                               UserVerificationService userVerificationService,
-                              PasswordEncoder passwordEncoder) {
+                              PasswordEncoder passwordEncoder,
+                              ParticipantMapper participantMapper) {
         this.participantRepository = participantRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
+        this.participantMapper = participantMapper;
     }
 
     @Override
-    public Participant findByUUID(UUID uuid) throws NotFoundException{
-        return participantRepository.findParticipantByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("Participant not found."));
+    public ResponseEntity<DataResult<UserGetDto>> findById(Long id) {
+        Participant participant = participantRepository.findById(id).orElse(null);
+        if(participant == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult("Admin not found with given id"));
+        } else {
+            return ResponseEntity.ok(new SuccessDataResult<>(
+                    participantMapper.participantToGetDto(participant),
+                    "Admin found."
+            ));
+        }
     }
 
     @Override
-    public Participant add(Participant participant){
-        if(Strings.isNullOrEmpty(participant.getRole()) ||
-                Strings.isNullOrEmpty(participant.getName()) ||
-                Strings.isNullOrEmpty(participant.getBirthYear()) ||
-                Strings.isNullOrEmpty(participant.getSurname()) ||
-                Strings.isNullOrEmpty(participant.getNationalIdentity()) ||
-                Strings.isNullOrEmpty(participant.getPassword()) ||
-                Strings.isNullOrEmpty(participant.getUsername()))
-            throw new ParameterException("Null or empty property found.");
-        else if(userVerificationService.validate(participant.getNationalIdentity(),
-                participant.getName(),
-                participant.getSurname(),
-                participant.getBirthYear())){
+    public ResponseEntity<DataResult<UserGetDto>> add(UserDto participantDto){
+        if(userVerificationService.validate(
+                participantDto.getNationalIdentity(),
+                participantDto.getName(),
+                participantDto.getSurname(),
+                participantDto.getBirthYear())){
+
+            Participant participant = participantMapper.postDtoToParticipant(participantDto);
             participant.setPassword(passwordEncoder.encode(participant.getPassword()));
-            return participantRepository.save(participant);
+            participant.setAuthorities(RoleParser.parse(participant.getRole().split(","), participant));
+            return ResponseEntity.ok(
+                    new SuccessDataResult<>(participantMapper.participantToGetDto(participantRepository.save(participant)))
+            );
+
         } else
-            throw new UserVerificationException("User information is incorrect.");
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("User information is incorrect."));
     }
 
     @Override
-    public Participant update(Long id, Participant participant) {
-        Participant participantToUpdate = participantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Participant not found."));
-        if(!Strings.isNullOrEmpty(participant.getPassword()) &&
-                !passwordEncoder.matches(participant.getPassword(), participantToUpdate.getPassword())){
-            participantToUpdate.setPassword(passwordEncoder.encode(participant.getPassword()));
+    public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto userPostDto) {
+        Participant participantToUpdate = participantRepository.findById(id).orElse(null);
+        if(participantToUpdate == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Participant found with given id"));
         }
-        if(!Strings.isNullOrEmpty(participant.getUsername()) &&
-                !participantToUpdate.getUsername().equals(participant.getUsername())){
-            participantToUpdate.setUsername(participant.getUsername());
+        if(!Strings.isNullOrEmpty(userPostDto.getUsername()) &&
+                !participantToUpdate.getUsername().equals(userPostDto.getUsername())){
+            participantToUpdate.setUsername(userPostDto.getUsername());
         }
-        return participantRepository.save(participantToUpdate);
+        if(!Strings.isNullOrEmpty(userPostDto.getPassword()) &&
+                !passwordEncoder.matches(userPostDto.getPassword(), participantToUpdate.getPassword())){
+            participantToUpdate.setPassword(passwordEncoder.encode(userPostDto.getPassword()));
+        }
+
+        return ResponseEntity.ok(new SuccessDataResult<>(
+                participantMapper.participantToGetDto(participantRepository.save(participantToUpdate)),
+                "User updated successfully.")
+        );
     }
 
     @Override
-    public void delete(Long id) {
-        participantRepository.deleteById(id);
+    public ResponseEntity<Result> delete(Long id) {
+        if(participantRepository.existsById(id)){
+            participantRepository.deleteById(id);
+            return ResponseEntity.ok(new SuccessResult("Participant deleted successfully."));
+        } else{
+            return ResponseEntity.badRequest().body(new ErrorResult("Participant not found with given id."));
+        }
+    }
+
+    @Override
+    public boolean existById(Long id) {
+        return participantRepository.existsById(id);
     }
 }

@@ -7,15 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.ParticipantService;
-import project.fsurvey.dto.ParticipantDto;
+import project.fsurvey.core.results.DataResult;
+import project.fsurvey.core.results.Result;
+import project.fsurvey.dtos.UserDto;
+import project.fsurvey.dtos.UserGetDto;
 import project.fsurvey.entities.concretes.users.Participant;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
-import project.fsurvey.core.exception.UserVerificationException;
 import project.fsurvey.core.util.RoleParser;
 
 import javax.validation.Valid;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/participant")
@@ -28,56 +27,25 @@ public class ParticipantRestController {
         this.participantService = participantService;
     }
 
-    @GetMapping("/find-by-uuid/{uuid}")
-    public ResponseEntity<Object> findByUuid(@PathVariable("uuid") UUID uuid){
-        try{
-            return ResponseEntity.ok(participantService.findByUUID(uuid));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given uuid.");
-        }
+    @GetMapping("/find-by-uuid/{id}")
+    public ResponseEntity<DataResult<UserGetDto>> findById(@PathVariable("id") Long id){
+        return participantService.findById(id);
+
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody @Valid ParticipantDto participantDto){
-        Participant participant = new Participant();
-        participant.setName(participantDto.getName());
-        participant.setBirthYear(participantDto.getBirthYear());
-        participant.setSurname(participantDto.getSurname());
-        participant.setNationalIdentity(participantDto.getNationalIdentity());
-        participant.setPassword(participantDto.getPassword());
-        participant.setRole(participantDto.getRole());
-        participant.setUsername(participantDto.getUsername());
-        if(!Strings.isNullOrEmpty(participant.getRole()))
-            participant.setAuthorities(RoleParser.parse(participant.getRole().split(","), participant));
-        try{
-            return ResponseEntity.ok(participantService.add(participant));
-        } catch (ParameterException | UserVerificationException e){
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when creating participant");
-        }
+    public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto participantDto){
+        return participantService.add(participantDto);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id,
-                                         @RequestBody @Valid ParticipantDto participantDto){
-        Participant participant = new Participant();
-        participant.setUsername(participantDto.getUsername());
-        participant.setPassword(participantDto.getPassword());
-        try{
-            return ResponseEntity.ok(participantService.update(id, participant));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given id.");
-        }
+    public ResponseEntity<DataResult<UserGetDto>> update(@PathVariable("id") Long id,
+                                         @RequestBody @Valid UserDto participantDto){
+         return participantService.update(id, participantDto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id){
-        try{
-            participantService.delete(id);
-            return ResponseEntity.ok("Participant successfully deleted.");
-        } catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participant not found with given id");
-        }
+    public ResponseEntity<Result> delete(@PathVariable("id") Long id){
+        return participantService.delete(id);
     }
 }

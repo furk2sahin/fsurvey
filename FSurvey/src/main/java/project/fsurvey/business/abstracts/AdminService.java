@@ -1,9 +1,14 @@
 package project.fsurvey.business.abstracts;
 
-import project.fsurvey.entities.concretes.users.Admin;
+import org.springframework.http.ResponseEntity;
+import project.fsurvey.core.results.DataResult;
+import project.fsurvey.core.results.Result;
+import project.fsurvey.dtos.UserGetDto;
+import project.fsurvey.dtos.UserDto;
 
-import java.util.UUID;
-
-public interface AdminService extends CrudService<Admin> {
-    Admin findByUUID(UUID uuid) throws NumberFormatException;
+public interface AdminService {
+    ResponseEntity<DataResult<UserGetDto>> add(UserDto userPostDto);
+    ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto userUpdateDto);
+    ResponseEntity<Result> delete(Long id);
+    ResponseEntity<DataResult<UserGetDto>> findById(Long id);
 }

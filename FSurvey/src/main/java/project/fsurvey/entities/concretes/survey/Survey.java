@@ -5,8 +5,6 @@ import lombok.Data;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +18,6 @@ public class Survey {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "Survey name cannot be empty.")
-    @Size(min = 2, message = "Survey name length cannot be less than 2.")
     private String name;
 
     @Column

@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import project.fsurvey.entities.concretes.users.Role;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.*;
 
 @Data
@@ -28,23 +26,16 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(updatable = false, unique = true)
-    private UUID uuid = UUID.randomUUID();
-
     @Column(nullable = false, unique = true)
-    @Size(min = 6, max = 30, message = "Username length should be between 6-30.")
-    @NotBlank(message = "Username cannot be empty.")
     private String username;
 
     @Column(nullable = false)
-    @Size(min = 6, max = 30, message = "Password length should be between 6-30.")
-    @NotBlank(message = "Username cannot be empty.")
     private String password;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false)
-    private Calendar createDate;
+    private Date createDate;
 
     @Column(nullable = false)
     private String role;

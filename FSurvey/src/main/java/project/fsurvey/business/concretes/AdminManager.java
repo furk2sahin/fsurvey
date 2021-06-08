@@ -2,76 +2,98 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.fsurvey.core.adapter.abstracts.UserVerificationService;
 import project.fsurvey.business.abstracts.AdminService;
+import project.fsurvey.core.results.*;
+import project.fsurvey.core.util.RoleParser;
+import project.fsurvey.dtos.UserGetDto;
+import project.fsurvey.dtos.UserDto;
 import project.fsurvey.entities.concretes.users.Admin;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
-import project.fsurvey.core.exception.UserVerificationException;
+import project.fsurvey.mapper.AdminMapper;
 import project.fsurvey.repositories.AdminRepository;
-
-import java.util.UUID;
 
 @Service
 public class AdminManager implements AdminService {
 
-    private AdminRepository adminRepository;
-    private UserVerificationService userVerificationService;
-    private PasswordEncoder passwordEncoder;
+    private final AdminRepository adminRepository;
+    private final UserVerificationService userVerificationService;
+    private final PasswordEncoder passwordEncoder;
+    private final AdminMapper adminMapper;
 
     @Autowired
     public AdminManager(AdminRepository adminRepository,
                         UserVerificationService userVerificationService,
-                        PasswordEncoder passwordEncoder) {
+                        PasswordEncoder passwordEncoder,
+                        AdminMapper adminMapper) {
         this.adminRepository = adminRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
+        this.adminMapper = adminMapper;
     }
 
     @Override
-    public Admin findByUUID(UUID uuid) throws NotFoundException{
-        return adminRepository.findAdminByUuid(uuid).orElseThrow(() -> new NotFoundException("Admin not found."));
+    public ResponseEntity<DataResult<UserGetDto>> findById(Long id) {
+        Admin admin = adminRepository.findById(id).orElse(null);
+        if(admin == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult("Admin not found with given id"));
+        } else {
+            return ResponseEntity.ok(new SuccessDataResult<>(
+                    adminMapper.adminToGetDto(admin),
+                    "Admin found."
+            ));
+        }
     }
 
     @Override
-    public Admin add(Admin admin){
-        if(Strings.isNullOrEmpty(admin.getName()) ||
-                Strings.isNullOrEmpty(admin.getRole()) ||
-                Strings.isNullOrEmpty(admin.getBirthYear()) ||
-                Strings.isNullOrEmpty(admin.getSurname()) ||
-                Strings.isNullOrEmpty(admin.getNationalIdentity()) ||
-                Strings.isNullOrEmpty(admin.getPassword()) ||
-                Strings.isNullOrEmpty(admin.getUsername()))
-            throw new ParameterException("Null or empty property found.");
-        else if(userVerificationService.validate(admin.getNationalIdentity(),
-                admin.getName(),
-                admin.getSurname(),
-                admin.getBirthYear())){
+    public ResponseEntity<DataResult<UserGetDto>> add(UserDto adminPostDto){
+        if(userVerificationService.validate(
+                adminPostDto.getNationalIdentity(),
+                adminPostDto.getName(),
+                adminPostDto.getSurname(),
+                adminPostDto.getBirthYear())){
+
+            Admin admin = adminMapper.postDtoToAdmin(adminPostDto);
             admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-            return adminRepository.save(admin);
+            admin.setAuthorities(RoleParser.parse(admin.getRole().split(","), admin));
+            return ResponseEntity.ok(
+                    new SuccessDataResult<>(adminMapper.adminToGetDto(adminRepository.save(admin)))
+            );
+
         } else
-            throw new UserVerificationException("User information is incorrect.");
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("User information is incorrect."));
     }
 
     @Override
-    public Admin update(Long id, Admin admin) {
-        Admin adminToUpdate = adminRepository.findById(id).orElseThrow(() -> new NotFoundException("Admin not found."));
-        if(!Strings.isNullOrEmpty(admin.getUsername()) &&
-                !adminToUpdate.getUsername().equals(admin.getUsername())){
-            adminToUpdate.setUsername(admin.getUsername());
+    public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto adminPostDto) {
+        Admin adminToUpdate = adminRepository.findById(id).orElse(null);
+        if(adminToUpdate == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Admin found with given id"));
         }
-        if(!Strings.isNullOrEmpty(admin.getPassword()) &&
-                !passwordEncoder.matches(admin.getPassword(), adminToUpdate.getPassword())){
-            adminToUpdate.setPassword(passwordEncoder.encode(admin.getPassword()));
+        if(!Strings.isNullOrEmpty(adminPostDto.getUsername()) &&
+                !adminToUpdate.getUsername().equals(adminPostDto.getUsername())){
+            adminToUpdate.setUsername(adminPostDto.getUsername());
+        }
+        if(!Strings.isNullOrEmpty(adminPostDto.getPassword()) &&
+                !passwordEncoder.matches(adminPostDto.getPassword(), adminToUpdate.getPassword())){
+            adminToUpdate.setPassword(passwordEncoder.encode(adminPostDto.getPassword()));
         }
 
-        return adminRepository.save(adminToUpdate);
+        return ResponseEntity.ok(new SuccessDataResult<>(
+                adminMapper.adminToGetDto(adminRepository.save(adminToUpdate)),
+                "User updated successfully.")
+        );
     }
 
     @Override
-    public void delete(Long id) {
-        adminRepository.deleteById(id);
+    public ResponseEntity<Result> delete(Long id) {
+        if(adminRepository.existsById(id)){
+            adminRepository.deleteById(id);
+            return ResponseEntity.ok(new SuccessResult("Admin deleted successfully."));
+        } else{
+            return ResponseEntity.badRequest().body(new ErrorResult("Admin not found with given id."));
+        }
     }
 }

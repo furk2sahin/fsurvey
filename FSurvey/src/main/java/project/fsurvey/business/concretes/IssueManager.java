@@ -2,14 +2,16 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project.fsurvey.business.abstracts.IssueService;
+import project.fsurvey.business.abstracts.SurveyService;
+import project.fsurvey.core.results.*;
+import project.fsurvey.dtos.IssueDto;
 import project.fsurvey.entities.concretes.survey.Issue;
 import project.fsurvey.entities.concretes.survey.Survey;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
+import project.fsurvey.mapper.IssueMapper;
 import project.fsurvey.repositories.IssueRepository;
-import project.fsurvey.repositories.SurveyRepository;
 
 import java.util.List;
 
@@ -17,59 +19,82 @@ import java.util.List;
 public class IssueManager implements IssueService {
 
     private IssueRepository issueRepository;
-    private SurveyRepository surveyRepository;
+    private SurveyService surveyService;
+    private IssueMapper issueMapper;
 
     @Autowired
-    public IssueManager(IssueRepository issueRepository, SurveyRepository surveyRepository) {
+    public IssueManager(IssueRepository issueRepository,
+                        SurveyService surveyService,
+                        IssueMapper issueMapper) {
         this.issueRepository = issueRepository;
-        this.surveyRepository = surveyRepository;
+        this.surveyService = surveyService;
+        this.issueMapper = issueMapper;
     }
 
     @Override
-    public Issue findById(Long id) {
-        return issueRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Issue not found by id " + id));
+    public ResponseEntity<DataResult<Issue>> add(IssueDto issueDto) {
+        if(!surveyService.existById(issueDto.getSurveyId()))
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No survey found with given id"));
+
+        Issue issue = issueMapper.toEntity(issueDto);
+        issue.getOptions().forEach(option -> option.setIssue(issue));
+        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), "Data saved successfully."));
     }
 
     @Override
-    public Issue add(Issue issue) {
-        if(Strings.isNullOrEmpty(issue.getQuestion()) ||
-                issue.getIssueOrder() < 0) {
-            throw new ParameterException("Null or empty property found.");
-        } else return issueRepository.save(issue);
-    }
+    public ResponseEntity<DataResult<Issue>> update(Long id, IssueDto issueDto) {
+        DataResult<Issue> result = findById(id).getBody();
+        if(!result.isSuccess())
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(result.getMessage()));
 
-    @Override
-    public List<Issue> addAll(Long surveyId, List<Issue> issues) {
-        Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new NotFoundException("Survey not found with given id."));
-        issues.stream().forEach(issue -> issue.setSurvey(survey));
-        return issueRepository.saveAll(issues);
-    }
-
-    @Override
-    public Issue update(Long id, Issue issue) {
-        Issue issueToUpdate = issueRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Issue not found."));
-        if(!Strings.isNullOrEmpty(issue.getQuestion()) &&
-                !issueToUpdate.getQuestion().equals(issue.getQuestion())){
-            issueToUpdate.setQuestion(issue.getQuestion());
+        Issue issue = result.getData();
+        if(!Strings.isNullOrEmpty(issueDto.getQuestion()) &&
+                !issue.getQuestion().equals(issue.getQuestion())){
+            issue.setQuestion(issueDto.getQuestion());
         }
 
-        return issueRepository.save(issueToUpdate);
+        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), "Data updated successfully."));
     }
 
     @Override
-    public List<Issue> findBySurveyId(Long surveyId) {
-        return issueRepository.findAllBySurveyId(surveyId);
+    public ResponseEntity<DataResult<Issue>> findById(Long id) {
+        Issue issue = issueRepository.findById(id).orElse(null);
+        if(issue == null){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Issue not found with id " + id));
+        }
+        return ResponseEntity.ok(new SuccessDataResult<>(issue, "Data found."));
     }
 
     @Override
-    public void delete(Long id) {
-        Issue issue = issueRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Issue not found."));
-        issue.setSurvey(null);
-        issueRepository.save(issue);
+    public ResponseEntity<DataResult<List<Issue>>> findBySurveyId(Long surveyId) {
+        List<Issue> issues = issueRepository.findAllBySurveyId(surveyId);
+        if(issues.isEmpty())
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No data were found."));
+        return ResponseEntity.ok(new SuccessDataResult<>(issues, "Data listed by survey id " + surveyId));
+    }
+
+    @Override
+    public ResponseEntity<Result> delete(Long id) {
+        if(!issueRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new ErrorResult("No issue were found with id " + id));
+
         issueRepository.deleteById(id);
+        return ResponseEntity.ok(new SuccessResult("Issue deleted successfully with given id " + id));
+    }
+
+    @Override
+    public ResponseEntity<DataResult<List<Issue>>> addAll(Long surveyId, List<IssueDto> issueDtos) {
+        DataResult<Survey> result = surveyService.findById(surveyId).getBody();
+        if(!result.isSuccess())
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(result.getMessage()));
+
+        List<Issue> issues = issueMapper.toEntities(issueDtos);
+        issues.forEach(issue -> issue.setSurvey(result.getData()));
+        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.saveAll(issues), "Data saved successfully."));
+    }
+
+    @Override
+    public boolean existById(Long id) {
+        return issueRepository.existsById(id);
     }
 }

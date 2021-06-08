@@ -1,15 +1,15 @@
 package project.fsurvey.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.AnswerService;
+import project.fsurvey.core.results.DataResult;
+import project.fsurvey.dtos.AnswerDto;
 import project.fsurvey.entities.concretes.survey.Answer;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/answer")
@@ -23,51 +23,38 @@ public class AnswerRestController {
     }
 
     @GetMapping("/find-by-id/{id}")
-    public ResponseEntity<Object> findById(@PathVariable("id") Long id){
-        try{
-            return ResponseEntity.ok(answerService.findById(id));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer not found with given id.");
-        }
+    public ResponseEntity<DataResult<Answer>> findById(@PathVariable("id") Long id){
+        return answerService.findById(id);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody @Valid Answer answer){
-        try{
-            return ResponseEntity.ok(answerService.add(answer));
-        } catch (ParameterException | NotFoundException e){
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when creating Answer");
-        }
+    public ResponseEntity<DataResult<Answer>> add(@RequestBody @Valid AnswerDto answerDto){
+        return answerService.add(answerDto);
     }
 
     @GetMapping("/find-by-participant-id/{id}")
-    public ResponseEntity<Object> findByParticipantId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(answerService.findByParticipantId(id));
+    public ResponseEntity<DataResult<List<Answer>>> findByParticipantId(@PathVariable("id") Long id){
+        return answerService.findByParticipantId(id);
     }
 
     @GetMapping("/find-by-survey-id/{id}")
-    public ResponseEntity<Object> findBySurveyId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(answerService.findBySurveyId(id));
+    public ResponseEntity<DataResult<List<Answer>>> findBySurveyId(@PathVariable("id") Long id){
+        return answerService.findBySurveyId(id);
     }
 
     @GetMapping("/find-by-issue-id/{id}")
-    public ResponseEntity<Object> findByIssueId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(answerService.findByIssueId(id));
+    public ResponseEntity<DataResult<List<Answer>>> findByIssueId(@PathVariable("id") Long id){
+        return answerService.findByIssueId(id);
     }
 
     @GetMapping("/find-by-option-id/{id}")
-    public ResponseEntity<Object> findByOptionId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(answerService.findByOptionId(id));
+    public ResponseEntity<DataResult<List<Answer>>> findByOptionId(@PathVariable("id") Long id){
+        return answerService.findByOptionId(id);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Answer answer){
-        try{
-            return ResponseEntity.ok(answerService.update(id, answer));
-        }  catch (ParameterException | NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<DataResult<Answer>> update(@PathVariable("id") Long id,
+                                                     @RequestBody @Valid AnswerDto answerDto){
+        return answerService.update(id, answerDto);
     }
 }

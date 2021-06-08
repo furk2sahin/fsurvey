@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.IssueService;
 import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.business.abstracts.SurveyService;
+import project.fsurvey.core.results.DataResult;
+import project.fsurvey.core.results.Result;
+import project.fsurvey.dtos.IssueDto;
 import project.fsurvey.entities.concretes.survey.Issue;
-import project.fsurvey.core.exception.NotFoundException;
-import project.fsurvey.core.exception.ParameterException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,62 +32,34 @@ public class IssueRestController {
     }
 
     @GetMapping("/find-by-id/{id}")
-    public ResponseEntity<Object> findById(@PathVariable("id") Long id){
-        try{
-            return ResponseEntity.ok(issueService.findById(id));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found with given id.");
-        }
+    public ResponseEntity<DataResult<Issue>> findById(@PathVariable("id") Long id){
+        return issueService.findById(id);
     }
 
-    @PostMapping("/add/{surveyId}")
-    public ResponseEntity<Object> add(@PathVariable("surveyId") Long surveyId, @RequestBody Issue issue){
-        try{
-            issue.setSurvey(surveyService.findById(surveyId));
-            Issue addedIssue = issueService.add(issue);
-            optionService.addAll(issue.getId(), issue.getOptions());
-            return ResponseEntity.ok(addedIssue);
-        } catch (ParameterException e){
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when creating Issue");
-        }
+    @PostMapping("/add")
+    public ResponseEntity<DataResult<Issue>> add(@RequestBody IssueDto issueDto){
+        return issueService.add(issueDto);
     }
 
     @PostMapping("/add-all/{surveyId}")
-    public ResponseEntity<Object> addAll(@PathVariable("surveyId") Long surveyId, @RequestBody @Valid List<Issue> issues){
-        try{
-            List<Issue> savedIssues = issueService.addAll(surveyId, issues);
-            issues.forEach(issue -> optionService.addAll(issue.getId(), issue.getOptions()));
-            return ResponseEntity.ok(savedIssues);
-        } catch (ParameterException e){
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when creating Issue");
-        }
+    public ResponseEntity<DataResult<List<Issue>>> addAll(@PathVariable("surveyId") Long surveyId,
+                                                    @RequestBody @Valid List<IssueDto> issueDtos){
+        return issueService.addAll(surveyId, issueDtos);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") Long id, @RequestBody @Valid Issue issue){
-        try{
-            return ResponseEntity.ok(issueService.update(id, issue));
-        } catch (NotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found with given id.");
-        }
+    public ResponseEntity<DataResult<Issue>> update(@PathVariable("id") Long id,
+                                                    @RequestBody @Valid IssueDto issueDto){
+        return issueService.update(id, issueDto);
     }
 
     @GetMapping("/find-by-survey-id/{id}")
-    public ResponseEntity<Object> findBySurveyId(@PathVariable("id") Long id){
-        return ResponseEntity.ok(issueService.findBySurveyId(id));
+    public ResponseEntity<DataResult<List<Issue>>> findBySurveyId(@PathVariable("id") Long id){
+        return issueService.findBySurveyId(id);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id){
-        try{
-            issueService.delete(id);
-            return ResponseEntity.ok("Issue successfully deleted.");
-        } catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found with given id");
-        }
+    public ResponseEntity<Result> delete(@PathVariable("id") Long id){
+        return issueService.delete(id);
     }
 }
