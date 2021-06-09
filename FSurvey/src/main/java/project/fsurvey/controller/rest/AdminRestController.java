@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.AdminService;
 import project.fsurvey.core.results.DataResult;
@@ -31,6 +32,7 @@ public class AdminRestController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto admin){
             return adminService.add(admin);
     }

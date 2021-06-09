@@ -1,5 +1,7 @@
 package project.fsurvey.business.abstracts;
 
-public interface UserService {
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public interface UserService extends UserDetailsService {
     boolean existsByUsername(String username);
 }
