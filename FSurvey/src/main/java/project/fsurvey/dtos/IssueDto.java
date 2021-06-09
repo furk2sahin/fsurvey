@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 public class IssueDto {
 
     @Min(1)
-    @NotBlank
+    @NotNull
     private Integer issueOrder;
 
     @NotBlank(message = "Question cannot be empty.")
@@ -20,7 +21,7 @@ public class IssueDto {
     private String question;
 
     @Min(1)
-    @NotBlank
+    @NotNull
     private Long surveyId;
 
     private List<OptionDto> options = new ArrayList<>();

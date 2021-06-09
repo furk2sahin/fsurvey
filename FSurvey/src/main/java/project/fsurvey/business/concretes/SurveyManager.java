@@ -32,6 +32,10 @@ public class SurveyManager implements project.fsurvey.business.abstracts.SurveyS
             return ResponseEntity.badRequest().body(new ErrorDataResult<>("Options cannot be empty"));
 
         Survey survey = surveyMapper.toEntity(surveyDto);
+        survey.getIssues().forEach(issue -> {
+            issue.setSurvey(survey);
+            issue.getOptions().forEach(option -> option.setIssue(issue));
+        });
         return ResponseEntity.ok(new SuccessDataResult<>(surveyRepository.save(survey), "Survey added successfully."));
     }
 

@@ -38,4 +38,7 @@ public class Issue {
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonIgnoreProperties("issue")
     private List<Answer> answers = new ArrayList<>();
+
+    @Column(name = "status")
+    private boolean status = true;
 }

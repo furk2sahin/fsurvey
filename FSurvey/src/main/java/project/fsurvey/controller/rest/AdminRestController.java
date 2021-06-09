@@ -37,7 +37,7 @@ public class AdminRestController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<UserGetDto>> update(@PathVariable("id") Long id,
-                                                         @RequestBody @Valid UserDto admin){
+                                                         @RequestBody UserDto admin){
         return adminService.update(id, admin);
     }
 

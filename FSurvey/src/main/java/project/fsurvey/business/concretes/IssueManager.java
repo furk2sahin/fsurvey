@@ -49,7 +49,7 @@ public class IssueManager implements IssueService {
 
         Issue issue = result.getData();
         if(!Strings.isNullOrEmpty(issueDto.getQuestion()) &&
-                !issue.getQuestion().equals(issue.getQuestion())){
+                !issue.getQuestion().equals(issueDto.getQuestion())){
             issue.setQuestion(issueDto.getQuestion());
         }
 
@@ -75,26 +75,11 @@ public class IssueManager implements IssueService {
 
     @Override
     public ResponseEntity<Result> delete(Long id) {
-        if(!issueRepository.existsById(id))
+        Issue issue = issueRepository.findById(id).orElse(null);
+        if(issue == null)
             return ResponseEntity.badRequest().body(new ErrorResult("No issue were found with id " + id));
-
-        issueRepository.deleteById(id);
-        return ResponseEntity.ok(new SuccessResult("Issue deleted successfully with given id " + id));
-    }
-
-    @Override
-    public ResponseEntity<DataResult<List<Issue>>> addAll(Long surveyId, List<IssueDto> issueDtos) {
-        DataResult<Survey> result = surveyService.findById(surveyId).getBody();
-        if(!result.isSuccess())
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>(result.getMessage()));
-
-        List<Issue> issues = issueMapper.toEntities(issueDtos);
-        issues.forEach(issue -> issue.setSurvey(result.getData()));
-        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.saveAll(issues), "Data saved successfully."));
-    }
-
-    @Override
-    public boolean existById(Long id) {
-        return issueRepository.existsById(id);
+        issue.setStatus(false);
+        issueRepository.save(issue);
+        return ResponseEntity.ok(new SuccessResult("Issue deleted successfully"));
     }
 }

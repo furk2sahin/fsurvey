@@ -14,6 +14,4 @@ public interface IssueService {
     ResponseEntity<Result> delete(Long id);
     ResponseEntity<DataResult<Issue>> findById(Long id);
     ResponseEntity<DataResult<List<Issue>>> findBySurveyId(Long surveyId);
-    ResponseEntity<DataResult<List<Issue>>> addAll(Long surveyId, List<IssueDto> issueDtos);
-    boolean existById(Long id);
 }

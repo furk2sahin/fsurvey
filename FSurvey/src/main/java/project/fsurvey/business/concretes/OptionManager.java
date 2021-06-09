@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import project.fsurvey.business.abstracts.IssueService;
 import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.core.results.*;
@@ -61,14 +62,6 @@ public class OptionManager implements OptionService {
     }
 
     @Override
-    public ResponseEntity<Result> delete(Long id) {
-        if(!optionRepository.existsById(id))
-            return ResponseEntity.ok(new ErrorResult("No data found with given id"));
-        optionRepository.deleteById(id);
-        return ResponseEntity.ok(new SuccessResult("Option successfully deleted with given id"));
-    }
-
-    @Override
     public ResponseEntity<DataResult<Option>> findById(Long id) {
         Option option = optionRepository.findById(id).orElse(null);
         if(option == null){
@@ -86,17 +79,5 @@ public class OptionManager implements OptionService {
             );
         }
         return ResponseEntity.ok(new SuccessDataResult<>(options, "Answers listed by issue id " + issueId));
-    }
-
-    @Override
-    public ResponseEntity<DataResult<List<Option>>> addAll(List<OptionDto> optionDtos) {
-        if(optionDtos.isEmpty())
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Unable to add"));
-
-        List<Option> options = optionMapper.toEntities(optionDtos);
-        return ResponseEntity.ok(new SuccessDataResult<>(
-                optionRepository.saveAll(options),
-                "Options added successfully.")
-        );
     }
 }

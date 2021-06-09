@@ -21,14 +21,10 @@ import java.util.List;
 public class IssueRestController {
 
     private IssueService issueService;
-    private SurveyService surveyService;
-    private OptionService optionService;
 
     @Autowired
-    public IssueRestController(IssueService issueService, SurveyService surveyService, OptionService optionService) {
+    public IssueRestController(IssueService issueService) {
         this.issueService = issueService;
-        this.surveyService = surveyService;
-        this.optionService = optionService;
     }
 
     @GetMapping("/find-by-id/{id}")
@@ -37,20 +33,14 @@ public class IssueRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DataResult<Issue>> add(@RequestBody IssueDto issueDto){
-        return issueService.add(issueDto);
-    }
-
-    @PostMapping("/add-all/{surveyId}")
-    public ResponseEntity<DataResult<List<Issue>>> addAll(@PathVariable("surveyId") Long surveyId,
-                                                    @RequestBody @Valid List<IssueDto> issueDtos){
-        return issueService.addAll(surveyId, issueDtos);
+    public ResponseEntity<DataResult<Issue>> add(@RequestBody @Valid IssueDto issue){
+        return issueService.add(issue);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<Issue>> update(@PathVariable("id") Long id,
-                                                    @RequestBody @Valid IssueDto issueDto){
-        return issueService.update(id, issueDto);
+                                                    @RequestBody IssueDto issue){
+        return issueService.update(id, issue);
     }
 
     @GetMapping("/find-by-survey-id/{id}")

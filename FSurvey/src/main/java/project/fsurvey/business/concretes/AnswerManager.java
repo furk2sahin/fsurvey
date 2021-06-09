@@ -94,7 +94,7 @@ public class AnswerManager implements AnswerService {
         if(answerToUpdate == null)
             return ResponseEntity.badRequest().body(new ErrorDataResult<>("Answer not found with given id: " + id));
 
-        if(answerDto.getOptionId().equals(answerToUpdate.getOption().getId())){
+        if(!answerDto.getOptionId().equals(answerToUpdate.getOption().getId())){
             DataResult<Option> result = optionService.findById(answerDto.getOptionId()).getBody();
             if(!result.isSuccess())
                 return ResponseEntity.badRequest().body(new ErrorDataResult<>(

@@ -30,14 +30,14 @@ public class SurveyRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DataResult<Survey>> add(@RequestBody @Valid SurveyDto surveyDto){
-        return surveyService.add(surveyDto);
+    public ResponseEntity<DataResult<Survey>> add(@RequestBody @Valid SurveyDto survey){
+        return surveyService.add(survey);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<Survey>> update(@PathVariable("id") Long id,
-                                         @RequestBody @Valid SurveyDto surveyDto){
-        return surveyService.update(id, surveyDto);
+                                         @RequestBody SurveyDto survey){
+        return surveyService.update(id, survey);
     }
 
     @DeleteMapping("/delete/{id}")

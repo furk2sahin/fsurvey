@@ -3,23 +3,23 @@ package project.fsurvey.dtos;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class AnswerDto {
     @Min(1)
-    @NotBlank
+    @NotNull
     private Long participantId;
 
     @Min(1)
-    @NotBlank
+    @NotNull
     private Long surveyId;
 
     @Min(1)
-    @NotBlank
+    @NotNull
     private Long issueId;
 
     @Min(1)
-    @NotBlank
+    @NotNull
     private Long optionId;
 }

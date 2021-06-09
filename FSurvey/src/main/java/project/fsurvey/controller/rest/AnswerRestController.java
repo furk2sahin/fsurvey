@@ -54,7 +54,7 @@ public class AnswerRestController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<Answer>> update(@PathVariable("id") Long id,
-                                                     @RequestBody @Valid AnswerDto answerDto){
+                                                     @RequestBody AnswerDto answerDto){
         return answerService.update(id, answerDto);
     }
 }

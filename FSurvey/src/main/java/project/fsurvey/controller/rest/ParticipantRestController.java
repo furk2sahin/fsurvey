@@ -11,8 +11,6 @@ import project.fsurvey.core.results.DataResult;
 import project.fsurvey.core.results.Result;
 import project.fsurvey.dtos.UserDto;
 import project.fsurvey.dtos.UserGetDto;
-import project.fsurvey.entities.concretes.users.Participant;
-import project.fsurvey.core.util.RoleParser;
 
 import javax.validation.Valid;
 
@@ -27,21 +25,21 @@ public class ParticipantRestController {
         this.participantService = participantService;
     }
 
-    @GetMapping("/find-by-uuid/{id}")
+    @GetMapping("/find-by-id/{id}")
     public ResponseEntity<DataResult<UserGetDto>> findById(@PathVariable("id") Long id){
         return participantService.findById(id);
 
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto participantDto){
-        return participantService.add(participantDto);
+    public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto participant){
+        return participantService.add(participant);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<UserGetDto>> update(@PathVariable("id") Long id,
-                                         @RequestBody @Valid UserDto participantDto){
-         return participantService.update(id, participantDto);
+                                         @RequestBody  UserDto participant){
+         return participantService.update(id, participant);
     }
 
     @DeleteMapping("/delete/{id}")

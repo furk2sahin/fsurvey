@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fsurvey.business.abstracts.OptionService;
 import project.fsurvey.core.results.DataResult;
-import project.fsurvey.core.results.Result;
 import project.fsurvey.dtos.OptionDto;
 import project.fsurvey.entities.concretes.survey.Option;
 
@@ -35,13 +34,8 @@ public class OptionRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<DataResult<Option>> update(@PathVariable("id") Long id, @RequestBody @Valid OptionDto optionDto){
+    public ResponseEntity<DataResult<Option>> update(@PathVariable("id") Long id, @RequestBody OptionDto optionDto){
         return optionService.update(id, optionDto);
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Result> delete(@PathVariable("id") Long id){
-        return optionService.delete(id);
     }
 
     @GetMapping("/find-by-issue-id/{id}")
