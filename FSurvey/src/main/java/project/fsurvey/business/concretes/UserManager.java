@@ -5,10 +5,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.repositories.UserRepository;
 
 @Service
-public class UserManager implements UserDetailsService {
+public class UserManager implements UserService,UserDetailsService {
 
     private UserRepository userRepository;
 
@@ -20,5 +21,10 @@ public class UserManager implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 }

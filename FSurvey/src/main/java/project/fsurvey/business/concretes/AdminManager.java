@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.core.adapter.abstracts.UserVerificationService;
 import project.fsurvey.business.abstracts.AdminService;
 import project.fsurvey.core.results.*;
@@ -22,16 +23,19 @@ public class AdminManager implements AdminService {
     private final UserVerificationService userVerificationService;
     private final PasswordEncoder passwordEncoder;
     private final AdminMapper adminMapper;
+    private final UserService userService;
 
     @Autowired
     public AdminManager(AdminRepository adminRepository,
                         UserVerificationService userVerificationService,
                         PasswordEncoder passwordEncoder,
-                        AdminMapper adminMapper) {
+                        AdminMapper adminMapper,
+                        UserService userService) {
         this.adminRepository = adminRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
         this.adminMapper = adminMapper;
+        this.userService = userService;
     }
 
     @Override
@@ -49,6 +53,9 @@ public class AdminManager implements AdminService {
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> add(UserDto adminPostDto){
+        if(userService.existsByUsername(adminPostDto.getUsername()))
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+
         if(userVerificationService.validate(
                 adminPostDto.getNationalIdentity(),
                 adminPostDto.getName(),
@@ -68,6 +75,9 @@ public class AdminManager implements AdminService {
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto adminPostDto) {
+        if(userService.existsByUsername(adminPostDto.getUsername()))
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+
         Admin adminToUpdate = adminRepository.findById(id).orElse(null);
         if(adminToUpdate == null){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Admin found with given id"));

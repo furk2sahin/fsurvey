@@ -6,9 +6,6 @@ import project.fsurvey.entities.abstracts.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 @EqualsAndHashCode(callSuper = false)
 @Entity

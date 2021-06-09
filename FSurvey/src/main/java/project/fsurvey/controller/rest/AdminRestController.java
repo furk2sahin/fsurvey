@@ -31,14 +31,14 @@ public class AdminRestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto adminPostDto){
-            return adminService.add(adminPostDto);
+    public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto admin){
+            return adminService.add(admin);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<UserGetDto>> update(@PathVariable("id") Long id,
-                                                         @RequestBody @Valid UserDto userDto){
-        return adminService.update(id, userDto);
+                                                         @RequestBody @Valid UserDto admin){
+        return adminService.update(id, admin);
     }
 
     @DeleteMapping("/delete/{id}")

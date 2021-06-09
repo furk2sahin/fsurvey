@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.core.adapter.abstracts.UserVerificationService;
 import project.fsurvey.core.results.*;
 import project.fsurvey.core.util.RoleParser;
@@ -21,17 +22,19 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
     private UserVerificationService userVerificationService;
     private PasswordEncoder passwordEncoder;
     private final ParticipantMapper participantMapper;
-
+    private final UserService userService;
 
     @Autowired
     public ParticipantManager(ParticipantRepository participantRepository,
                               UserVerificationService userVerificationService,
                               PasswordEncoder passwordEncoder,
-                              ParticipantMapper participantMapper) {
+                              ParticipantMapper participantMapper,
+                              UserService userService) {
         this.participantRepository = participantRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
         this.participantMapper = participantMapper;
+        this.userService = userService;
     }
 
     @Override
@@ -49,6 +52,9 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> add(UserDto participantDto){
+        if(userService.existsByUsername(participantDto.getUsername()))
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+
         if(userVerificationService.validate(
                 participantDto.getNationalIdentity(),
                 participantDto.getName(),
@@ -68,6 +74,9 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto userPostDto) {
+        if(userService.existsByUsername(userPostDto.getUsername()))
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+
         Participant participantToUpdate = participantRepository.findById(id).orElse(null);
         if(participantToUpdate == null){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Participant found with given id"));
