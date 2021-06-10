@@ -10,6 +10,8 @@ import project.fsurvey.entities.concretes.survey.Survey;
 import project.fsurvey.mapper.SurveyMapper;
 import project.fsurvey.repositories.SurveyRepository;
 
+import java.util.List;
+
 @Service
 public class SurveyManager implements project.fsurvey.business.abstracts.SurveyService {
 
@@ -70,6 +72,15 @@ public class SurveyManager implements project.fsurvey.business.abstracts.SurveyS
             return ResponseEntity.ok(new ErrorResult("No survey were found with given id"));
         surveyRepository.deleteById(id);
         return ResponseEntity.ok(new SuccessResult("Survey successfully deleted with given id"));
+    }
+
+    @Override
+    public ResponseEntity<DataResult<List<Survey>>> findAll() {
+        List<Survey> surveys = surveyRepository.findAll();
+        if(surveys.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Survey were found"));
+        }
+        return ResponseEntity.ok(new SuccessDataResult<>(surveys, "Surveys successfully listed."));
     }
 
     @Override
