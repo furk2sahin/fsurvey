@@ -28,7 +28,7 @@ public class ParticipantRestController {
     }
 
     @GetMapping("/find-by-id/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_aDMIN', 'ROLE_PARTICIPANT')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PARTICIPANT')")
     public ResponseEntity<DataResult<UserGetDto>> findById(@PathVariable("id") Long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal() instanceof Participant){

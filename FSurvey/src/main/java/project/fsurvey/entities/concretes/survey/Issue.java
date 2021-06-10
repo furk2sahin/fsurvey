@@ -34,11 +34,6 @@ public class Issue {
     @JsonIgnoreProperties("issue")
     private List<Option> options = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "issue")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonIgnoreProperties("issue")
-    private List<Answer> answers = new ArrayList<>();
-
     @Column(name = "status")
     private boolean status = true;
 }
