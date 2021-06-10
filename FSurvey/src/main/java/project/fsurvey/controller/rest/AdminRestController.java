@@ -1,8 +1,6 @@
 package project.fsurvey.controller.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,23 +25,26 @@ public class AdminRestController {
     }
 
     @GetMapping("/find-by-id/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DataResult<UserGetDto>> findById(@PathVariable("id") Long id){
         return adminService.findById(id);
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DataResult<UserGetDto>> add(@RequestBody @Valid UserDto admin){
             return adminService.add(admin);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DataResult<UserGetDto>> update(@PathVariable("id") Long id,
                                                          @RequestBody UserDto admin){
         return adminService.update(id, admin);
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Result> delete(@PathVariable("id") Long id){
         return adminService.delete(id);
     }
