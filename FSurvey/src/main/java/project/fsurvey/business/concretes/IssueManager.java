@@ -9,7 +9,6 @@ import project.fsurvey.business.abstracts.SurveyService;
 import project.fsurvey.core.results.*;
 import project.fsurvey.dtos.IssueDto;
 import project.fsurvey.entities.concretes.survey.Issue;
-import project.fsurvey.entities.concretes.survey.Survey;
 import project.fsurvey.mapper.IssueMapper;
 import project.fsurvey.repositories.IssueRepository;
 
