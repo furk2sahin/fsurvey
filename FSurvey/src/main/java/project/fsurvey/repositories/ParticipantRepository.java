@@ -6,4 +6,5 @@ import project.fsurvey.entities.concretes.users.Participant;
 import java.util.Optional;
 
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
+    Optional<Participant> findByUsername(String username);
 }

@@ -27,7 +27,11 @@
                 <label for="password" class="sr-only">Password</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
             </p>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+            <button class="btn btn-lg btn-secondary btn-block" type="submit">Login</button>
+        </form>
+        <form action="/signin/facebook" method="POST">
+            <input type="hidden" name="scope" value="public_profile" />
+            <input type="submit" value="Login using Facebook" class="btn btn-lg btn-primary btn-block"/>
         </form>
     </div>
     </body>

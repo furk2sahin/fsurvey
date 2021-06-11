@@ -1,6 +1,7 @@
 package project.fsurvey.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -11,6 +12,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
+import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
+import org.springframework.social.connect.support.ConnectionFactoryRegistry;
+import org.springframework.social.connect.web.ProviderSignInController;
+import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import project.fsurvey.business.abstracts.UserService;
 
 @Configuration
@@ -20,12 +28,21 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private PasswordEncoder passwordEncoder;
     private UserService userService;
+    private FacebookConnectionSignup facebookConnectionSignup;
 
+    @Value("${facebook.appSecret}")
+    String appSecret;
+
+    @Value("${facebook.appId}")
+    String appId;
 
     @Autowired
-    public SpringSecurityConfiguration(PasswordEncoder passwordEncoder, UserService userService) {
+    public SpringSecurityConfiguration(PasswordEncoder passwordEncoder,
+                                       UserService userService,
+                                       FacebookConnectionSignup facebookConnectionSignup) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.facebookConnectionSignup = facebookConnectionSignup;
     }
 
     @Override
@@ -33,22 +50,16 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/participant/add").permitAll()
+                .antMatchers("/login*","/signin/**","/signup/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-            //   .formLogin().loginPage("/login").permitAll()
-           //     .defaultSuccessUrl("/welcome")
-           //     .and()
-          //      .logout()
-          //      .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-          //      .logoutSuccessUrl("/login").permitAll();
-                .httpBasic();
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(daoAuthenticationProvider());
+                   .formLogin().loginPage("/login").permitAll()
+                     .defaultSuccessUrl("/welcome")
+                     .and()
+                      .logout()
+                      .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                      .logoutSuccessUrl("/login").permitAll();
     }
 
     @Bean
@@ -57,5 +68,33 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         provider.setPasswordEncoder(passwordEncoder);
         provider.setUserDetailsService(userService);
         return provider;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth){
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+    @Bean
+    public ProviderSignInController providerSignInController() {
+        ConnectionFactoryLocator connectionFactoryLocator =
+                connectionFactoryLocator();
+        UsersConnectionRepository usersConnectionRepository =
+                getUsersConnectionRepository(connectionFactoryLocator);
+        ((InMemoryUsersConnectionRepository) usersConnectionRepository)
+                .setConnectionSignUp(facebookConnectionSignup);
+        return new ProviderSignInController(connectionFactoryLocator,
+                usersConnectionRepository, new FacebookSignInAdapter());
+    }
+
+    private ConnectionFactoryLocator connectionFactoryLocator() {
+        ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
+        registry.addConnectionFactory(new FacebookConnectionFactory(appId, appSecret));
+        return registry;
+    }
+
+    private UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator
+                                                                           connectionFactoryLocator) {
+        return new InMemoryUsersConnectionRepository(connectionFactoryLocator);
     }
 }

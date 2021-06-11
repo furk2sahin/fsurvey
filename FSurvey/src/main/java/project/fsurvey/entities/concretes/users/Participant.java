@@ -22,13 +22,9 @@ public class Participant extends User {
     @Column(nullable = false)
     private String surname;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String nationalIdentity;
 
-    @Column(nullable = false)
+    @Column
     private String birthYear;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "participant")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<Answer> answers;
 }
