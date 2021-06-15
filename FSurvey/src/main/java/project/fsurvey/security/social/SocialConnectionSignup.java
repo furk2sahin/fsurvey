@@ -1,4 +1,4 @@
-package project.fsurvey.security;
+package project.fsurvey.security.social;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,13 +12,13 @@ import project.fsurvey.repositories.ParticipantRepository;
 import java.util.Arrays;
 
 @Service
-public class FacebookConnectionSignup implements ConnectionSignUp {
+public class SocialConnectionSignup implements ConnectionSignUp {
 
     private ParticipantRepository participantRepository;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public FacebookConnectionSignup(ParticipantRepository participantRepository, PasswordEncoder passwordEncoder) {
+    public SocialConnectionSignup(ParticipantRepository participantRepository, PasswordEncoder passwordEncoder) {
         this.participantRepository = participantRepository;
         this.passwordEncoder = passwordEncoder;
     }

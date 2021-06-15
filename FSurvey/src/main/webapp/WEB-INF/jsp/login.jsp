@@ -33,6 +33,10 @@
             <input type="hidden" name="scope" value="public_profile" />
             <input type="submit" value="Login using Facebook" class="btn btn-lg btn-primary btn-block"/>
         </form>
+        <form action="/signin/twitter" method="POST">
+            <input type="hidden" name="scope" value="public_profile" />
+            <input type="submit" value="Login using Twitter" class="btn btn-lg btn-primary btn-block"/>
+        </form>
         <form action="/oauth2/authorization/google" method="POST">
             <input type="hidden" name="scope" value="public_profile" />
             <input type="submit" value="Login with Google" class="btn btn-lg btn-secondary btn-block"/>

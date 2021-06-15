@@ -11,10 +11,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UsersConnectionRepository;
@@ -22,20 +20,17 @@ import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.connect.web.ProviderSignInController;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
-import project.fsurvey.business.abstracts.ParticipantService;
+import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.business.concretes.CustomOAuth2UserService;
 import project.fsurvey.core.util.RoleParser;
-import project.fsurvey.dtos.UserDto;
 import project.fsurvey.entities.concretes.users.CustomOAuth2User;
 import project.fsurvey.entities.concretes.users.Participant;
 import project.fsurvey.repositories.ParticipantRepository;
-import project.fsurvey.security.permissions.UserRole;
+import project.fsurvey.security.social.SocialConnectionSignup;
+import project.fsurvey.security.social.SocialSignInAdapter;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -44,25 +39,31 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private PasswordEncoder passwordEncoder;
     private UserService userService;
-    private FacebookConnectionSignup facebookConnectionSignup;
+    private SocialConnectionSignup socialConnectionSignup;
     private CustomOAuth2UserService oAuth2UserService;
     private ParticipantRepository participantRepository;
 
     @Value("${facebook.appSecret}")
-    String appSecret;
+    String facebookAppSecret;
 
     @Value("${facebook.appId}")
-    String appId;
+    String facebookAppId;
+
+    @Value("${twitter.appSecret}")
+    String twitterAppSecret;
+
+    @Value("${twitter.appId}")
+    String twitterAppId;
 
     @Autowired
     public SpringSecurityConfiguration(PasswordEncoder passwordEncoder,
                                        UserService userService,
-                                       FacebookConnectionSignup facebookConnectionSignup,
+                                       SocialConnectionSignup socialConnectionSignup,
                                        CustomOAuth2UserService oAuth2UserService,
                                        ParticipantRepository participantRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
-        this.facebookConnectionSignup = facebookConnectionSignup;
+        this.socialConnectionSignup = socialConnectionSignup;
         this.oAuth2UserService = oAuth2UserService;
         this.participantRepository = participantRepository;
     }
@@ -134,14 +135,17 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         UsersConnectionRepository usersConnectionRepository =
                 getUsersConnectionRepository(connectionFactoryLocator);
         ((InMemoryUsersConnectionRepository) usersConnectionRepository)
-                .setConnectionSignUp(facebookConnectionSignup);
+                .setConnectionSignUp(socialConnectionSignup);
         return new ProviderSignInController(connectionFactoryLocator,
-                usersConnectionRepository, new FacebookSignInAdapter());
+                usersConnectionRepository, new SocialSignInAdapter(participantRepository));
     }
 
     private ConnectionFactoryLocator connectionFactoryLocator() {
         ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-        registry.addConnectionFactory(new FacebookConnectionFactory(appId, appSecret));
+        registry.setConnectionFactories(Arrays.asList(
+                new FacebookConnectionFactory(facebookAppId, facebookAppSecret),
+                new TwitterConnectionFactory(twitterAppId, twitterAppSecret)
+        ));
         return registry;
     }
 
