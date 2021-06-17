@@ -85,7 +85,7 @@ public class AnswerManager implements AnswerService {
             return ResponseEntity.badRequest().body(new ErrorDataResult<>("Issue ID didn't match."));
 
         Answer answer = answerMapper.toEntity(answerDto);
-        return ResponseEntity.ok(new SuccessDataResult<>(answerRepository.save(answer), "Answer saved successfully."));
+        return ResponseEntity.ok(new SuccessDataResult<>(answerRepository.save(answer)));
     }
 
     @Override
@@ -112,8 +112,8 @@ public class AnswerManager implements AnswerService {
 
         return ResponseEntity.ok(new SuccessDataResult<>(
                 answerRepository.save(answerToUpdate),
-                "Answer updated successfully")
-        );
+                "Answer updated successfully"
+        ));
     }
 
     @Override

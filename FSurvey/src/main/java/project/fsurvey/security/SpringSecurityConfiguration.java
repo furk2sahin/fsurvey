@@ -83,8 +83,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                       .logout()
                       .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                       .logoutSuccessUrl("/login").permitAll()
-                .and().
-                oauth2Login()
+                .and()
+                .oauth2Login()
                     .loginPage("/login")
                     .userInfoEndpoint()
                     .userService(oAuth2UserService)

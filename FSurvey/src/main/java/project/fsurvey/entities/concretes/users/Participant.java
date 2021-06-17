@@ -2,13 +2,9 @@ package project.fsurvey.entities.concretes.users;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import project.fsurvey.entities.abstracts.User;
-import project.fsurvey.entities.concretes.survey.Answer;
 
 import javax.persistence.*;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Entity

@@ -53,12 +53,11 @@ public class OptionManager implements OptionService {
         if(!Strings.isNullOrEmpty(optionDto.getAnswer()) &&
                 !optionToUpdate.getAnswer().equals(optionDto.getAnswer())){
             optionToUpdate.setAnswer(optionDto.getAnswer());
-            return ResponseEntity.ok(new SuccessDataResult<>(
-                    optionRepository.save(optionToUpdate),
-                    "Option updated successfully.")
-            );
         }
-        return ResponseEntity.badRequest().body(new ErrorDataResult<>("No changes."));
+        return ResponseEntity.ok(new SuccessDataResult<>(
+                optionRepository.save(optionToUpdate),
+                "Option updated successfully.")
+        );
     }
 
     @Override
@@ -75,7 +74,7 @@ public class OptionManager implements OptionService {
         List<Option> options = optionRepository.findAllByIssueId(issueId);
         if(options.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No answer were found by given issue id " + issueId)
+                    "No option were found by given issue id " + issueId)
             );
         }
         return ResponseEntity.ok(new SuccessDataResult<>(options, "Answers listed by issue id " + issueId));

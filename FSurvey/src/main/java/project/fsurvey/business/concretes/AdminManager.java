@@ -46,7 +46,7 @@ public class AdminManager implements AdminService {
         } else {
             return ResponseEntity.ok(new SuccessDataResult<>(
                     adminMapper.adminToGetDto(admin),
-                    "Admin found."
+                    "Admin found with given id."
             ));
         }
     }

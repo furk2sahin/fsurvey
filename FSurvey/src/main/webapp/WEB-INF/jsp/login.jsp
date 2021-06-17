@@ -1,3 +1,7 @@
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -18,28 +22,28 @@
     <body>
     <div class="container">
         <form class="form-signin" id="signin" action="/login" method="post">
-            <h2 class="form-signin-heading">Please Log in</h2>
+            <h2 class="form-signin-heading"><spring:message code="LOGIN_HEADER"/></h2>
             <p>
-                <label for="username" class="sr-only">Username</label>
-                <input type="text" id="username" name="username" class="form-control" placeholder="Username" required="" autofocus="">
+                <label for="username" class="sr-only"><spring:message code="USERNAME"/></label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="<spring:message code="USERNAME"/>" required="" autofocus="">
             </p>
             <p>
-                <label for="password" class="sr-only">Password</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
+                <label for="password" class="sr-only"><spring:message code="PASSWORD"/></label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="<spring:message code="PASSWORD"/>" required="">
             </p>
-            <button class="btn btn-lg btn-secondary btn-block" type="submit">Login</button>
+            <button class="btn btn-lg btn-secondary btn-block" type="submit"><spring:message code="LOGIN_BUTTON"/></button>
         </form>
         <form action="/signin/facebook" method="POST">
             <input type="hidden" name="scope" value="public_profile" />
-            <input type="submit" value="Login using Facebook" class="btn btn-lg btn-primary btn-block"/>
+            <input type="submit" value="<spring:message code="FACEBOOK_BUTTON"/>" class="btn btn-lg btn-primary btn-block"/>
         </form>
         <form action="/signin/twitter" method="POST">
             <input type="hidden" name="scope" value="public_profile" />
-            <input type="submit" value="Login using Twitter" class="btn btn-lg btn-primary btn-block"/>
+            <input type="submit" value="<spring:message code="TWITTER_BUTTON"/>" class="btn btn-lg btn-primary btn-block"/>
         </form>
         <form action="/oauth2/authorization/google" method="POST">
             <input type="hidden" name="scope" value="public_profile" />
-            <input type="submit" value="Login with Google" class="btn btn-lg btn-secondary btn-block"/>
+            <input type="submit" value="<spring:message code="GOOGLE_BUTTON"/>" class="btn btn-lg btn-secondary btn-block"/>
         </form>
     </div>
     </body>

@@ -2,6 +2,7 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,29 +24,32 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
     private PasswordEncoder passwordEncoder;
     private final ParticipantMapper participantMapper;
     private final UserService userService;
+    private Environment environment;
 
     @Autowired
     public ParticipantManager(ParticipantRepository participantRepository,
                               UserVerificationService userVerificationService,
                               PasswordEncoder passwordEncoder,
                               ParticipantMapper participantMapper,
-                              UserService userService) {
+                              UserService userService,
+                              Environment environment) {
         this.participantRepository = participantRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
         this.participantMapper = participantMapper;
         this.userService = userService;
+        this.environment = environment;
     }
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> findById(Long id) {
         Participant participant = participantRepository.findById(id).orElse(null);
         if(participant == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult("Admin not found with given id"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult());
         } else {
             return ResponseEntity.ok(new SuccessDataResult<>(
                     participantMapper.participantToGetDto(participant),
-                    "Admin found."
+                    environment.getProperty("PARTICIPANT_NOT_FOUND")
             ));
         }
     }
@@ -53,7 +57,7 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
     @Override
     public ResponseEntity<DataResult<UserGetDto>> add(UserDto participantDto){
         if(userService.existsByUsername(participantDto.getUsername()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USERNAME_ALREADY_TAKEN")));
 
         if(userVerificationService.validate(
                 participantDto.getNationalIdentity(),
