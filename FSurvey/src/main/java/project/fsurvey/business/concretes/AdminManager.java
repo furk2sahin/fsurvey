@@ -2,6 +2,7 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,29 +25,31 @@ public class AdminManager implements AdminService {
     private final PasswordEncoder passwordEncoder;
     private final AdminMapper adminMapper;
     private final UserService userService;
-
+    private final Environment environment;
     @Autowired
     public AdminManager(AdminRepository adminRepository,
                         UserVerificationService userVerificationService,
                         PasswordEncoder passwordEncoder,
                         AdminMapper adminMapper,
-                        UserService userService) {
+                        UserService userService,
+                        Environment environment) {
         this.adminRepository = adminRepository;
         this.userVerificationService = userVerificationService;
         this.passwordEncoder = passwordEncoder;
         this.adminMapper = adminMapper;
         this.userService = userService;
+        this.environment = environment;
     }
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> findById(Long id) {
         Admin admin = adminRepository.findById(id).orElse(null);
         if(admin == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult("Admin not found with given id"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult(environment.getProperty("ADMIN_NOT_FOUND")));
         } else {
             return ResponseEntity.ok(new SuccessDataResult<>(
                     adminMapper.adminToGetDto(admin),
-                    "Admin found with given id."
+                    environment.getProperty("ADMIN_FOUND")
             ));
         }
     }
@@ -54,7 +57,7 @@ public class AdminManager implements AdminService {
     @Override
     public ResponseEntity<DataResult<UserGetDto>> add(UserDto adminPostDto){
         if(userService.existsByUsername(adminPostDto.getUsername()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USERNAME_ALREADY_TAKEN")));
 
         if(userVerificationService.validate(
                 adminPostDto.getNationalIdentity(),
@@ -70,17 +73,17 @@ public class AdminManager implements AdminService {
             );
 
         } else
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("User information is incorrect."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USER_INFORMATION_INCORRECT")));
     }
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto adminPostDto) {
         if(userService.existsByUsername(adminPostDto.getUsername()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USERNAME_ALREADY_TAKEN")));
 
         Admin adminToUpdate = adminRepository.findById(id).orElse(null);
         if(adminToUpdate == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Admin found with given id"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ADMIN_NOT_FOUND")));
         }
         if(!Strings.isNullOrEmpty(adminPostDto.getUsername()) &&
                 !adminToUpdate.getUsername().equals(adminPostDto.getUsername())){
@@ -93,7 +96,7 @@ public class AdminManager implements AdminService {
 
         return ResponseEntity.ok(new SuccessDataResult<>(
                 adminMapper.adminToGetDto(adminRepository.save(adminToUpdate)),
-                "User updated successfully.")
+                environment.getProperty("USER_UPDATED"))
         );
     }
 
@@ -101,9 +104,9 @@ public class AdminManager implements AdminService {
     public ResponseEntity<Result> delete(Long id) {
         if(adminRepository.existsById(id)){
             adminRepository.deleteById(id);
-            return ResponseEntity.ok(new SuccessResult("Admin deleted successfully."));
+            return ResponseEntity.ok(new SuccessResult(environment.getProperty("USER_DELETED")));
         } else{
-            return ResponseEntity.badRequest().body(new ErrorResult("Admin not found with given id."));
+            return ResponseEntity.badRequest().body(new ErrorResult(environment.getProperty("ADMIN_NOT_FOUND")));
         }
     }
 }

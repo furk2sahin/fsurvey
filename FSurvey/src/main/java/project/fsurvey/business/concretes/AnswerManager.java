@@ -1,6 +1,7 @@
 package project.fsurvey.business.concretes;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project.fsurvey.business.abstracts.AnswerService;
@@ -28,6 +29,7 @@ public class AnswerManager implements AnswerService {
     private final IssueService issueService;
     private final OptionService optionService;
     private final AnswerMapper answerMapper;
+    private final Environment environment;
 
     @Autowired
     public AnswerManager(AnswerRepository answerRepository,
@@ -35,13 +37,15 @@ public class AnswerManager implements AnswerService {
                          SurveyRepository surveyRepository,
                          IssueService issueService,
                          AnswerMapper answerMapper,
-                         OptionService optionService) {
+                         OptionService optionService,
+                         Environment environment) {
         this.answerRepository = answerRepository;
         this.participantRepository = participantRepository;
         this.surveyRepository = surveyRepository;
         this.issueService = issueService;
         this.optionService = optionService;
         this.answerMapper = answerMapper;
+        this.environment = environment;
     }
 
     @Override
@@ -51,15 +55,15 @@ public class AnswerManager implements AnswerService {
                 answerDto.getSurveyId(),
                 answerDto.getIssueId(),
                 answerDto.getOptionId()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This record already exists"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("RECORD_ALREADY_EXISTS")));
 
         if(!participantRepository.existsById(answerDto.getParticipantId()))
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "Participant not found with id " + answerDto.getParticipantId()
+                    environment.getProperty("PARTICIPANT_NOT_FOUND")
             ));
         if(!surveyRepository.existsById(answerDto.getSurveyId()))
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "Survey not found with id " + answerDto.getSurveyId()
+                    environment.getProperty("SURVEY_NOT_FOUND")
             ));
 
         DataResult<Issue> issueResult = issueService.findById(answerDto.getIssueId()).getBody();
@@ -71,7 +75,7 @@ public class AnswerManager implements AnswerService {
         Issue issue = issueResult.getData();
 
         if(!issue.getSurvey().getId().equals(answerDto.getSurveyId()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Survey ID didn't match."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ISSUE_SURVEY_ID_DID_NOT_MATCH")));
 
         DataResult<Option> optionResult = optionService.findById(answerDto.getOptionId()).getBody();
 
@@ -82,7 +86,7 @@ public class AnswerManager implements AnswerService {
         Option option = optionResult.getData();
 
         if(!option.getIssue().getId().equals(answerDto.getIssueId()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Issue ID didn't match."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("OPTION_SURVEY_ID_DID_NOT_MATCH")));
 
         Answer answer = answerMapper.toEntity(answerDto);
         return ResponseEntity.ok(new SuccessDataResult<>(answerRepository.save(answer)));
@@ -93,26 +97,28 @@ public class AnswerManager implements AnswerService {
         Answer answerToUpdate = answerRepository.findById(id).orElse(null);
 
         if(answerToUpdate == null)
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Answer not found with given id: " + id));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ANSWER_NOT_FOUND")));
 
         if(!answerDto.getOptionId().equals(answerToUpdate.getOption().getId())){
             DataResult<Option> result = optionService.findById(answerDto.getOptionId()).getBody();
             if(!result.isSuccess())
                 return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                        "Option not found with id " + answerDto.getOptionId())
+                        environment.getProperty("OPTION_NOT_FOUND"))
                 );
 
             Option option = result.getData();
 
             if(!option.getIssue().getId().equals(answerToUpdate.getIssue().getId()))
-                return ResponseEntity.badRequest().body(new ErrorDataResult<>("Option's issue ID didn't match."));
+                return ResponseEntity.badRequest().body(new ErrorDataResult<>(
+                        environment.getProperty("OPTION_ISSUE_ID_DID_NOT_MATCH")
+                ));
 
             answerToUpdate.setOption(option);
         }
 
         return ResponseEntity.ok(new SuccessDataResult<>(
                 answerRepository.save(answerToUpdate),
-                "Answer updated successfully"
+                environment.getProperty("ANSWER_UPDATED")
         ));
     }
 
@@ -120,9 +126,9 @@ public class AnswerManager implements AnswerService {
     public ResponseEntity<DataResult<Answer>> findById(Long id) {
         Answer answer = answerRepository.findById(id).orElse(null);
         if(answer == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Answer not found with id " + id));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ANSWER_NOT_FOUND")));
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(answer, "Data found."));
+        return ResponseEntity.ok(new SuccessDataResult<>(answer, environment.getProperty("ANSWER_FOUND")));
     }
 
     @Override
@@ -131,10 +137,10 @@ public class AnswerManager implements AnswerService {
         List<Answer> answers = answerRepository.findAllByParticipantId(participantId);
         if(answers.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No answer were found by given participant id " + participantId)
+                    environment.getProperty("ANSWER_NOT_FOUND_BY_PARTICIPANT"))
             );
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(answers, "Answers listed by participant id " + participantId));
+        return ResponseEntity.ok(new SuccessDataResult<>(answers, environment.getProperty("ANSWER_LISTED_BY_PARTICIPANT")));
     }
 
     @Override
@@ -142,10 +148,10 @@ public class AnswerManager implements AnswerService {
         List<Answer> answers = answerRepository.findAllBySurveyId(surveyId);
         if(answers.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No answer were found by given survey id " + surveyId)
+                    environment.getProperty("ANSWER_NOT_FOUND_BY_SURVEY"))
             );
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(answers, "Answers listed by survey id " + surveyId));
+        return ResponseEntity.ok(new SuccessDataResult<>(answers, environment.getProperty("ANSWER_LISTED_BY_SURVEY")));
     }
 
     @Override
@@ -153,10 +159,10 @@ public class AnswerManager implements AnswerService {
         List<Answer> answers = answerRepository.findAllByIssueId(issueId);
         if(answers.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No answer were found by given issue id " + issueId)
+                    environment.getProperty("ANSWER_NOT_FOUND_BY_ISSUE"))
             );
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(answers, "Answers listed by issue id " + issueId));
+        return ResponseEntity.ok(new SuccessDataResult<>(answers, environment.getProperty("ANSWER_LISTED_BY_ISSUE")));
     }
 
     @Override
@@ -164,9 +170,9 @@ public class AnswerManager implements AnswerService {
         List<Answer> answers = answerRepository.findAllByOptionId(optionId);
         if(answers.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No answer were found by given option id " + optionId)
+                    environment.getProperty("ANSWER_NOT_FOUND_BY_OPTION"))
             );
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(answers, "Answers listed by option id " + optionId));
+        return ResponseEntity.ok(new SuccessDataResult<>(answers, environment.getProperty("ANSWER_LISTED_BY_OPTION")));
     }
 }

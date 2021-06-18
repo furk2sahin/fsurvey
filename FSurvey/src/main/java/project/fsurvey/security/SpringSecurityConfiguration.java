@@ -43,17 +43,17 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private CustomOAuth2UserService oAuth2UserService;
     private ParticipantRepository participantRepository;
 
-    @Value("${facebook.appSecret}")
-    String facebookAppSecret;
-
     @Value("${facebook.appId}")
     String facebookAppId;
 
-    @Value("${twitter.appSecret}")
-    String twitterAppSecret;
+    @Value("${facebook.appSecret}")
+    String facebookAppSecret;
 
     @Value("${twitter.appId}")
     String twitterAppId;
+
+    @Value("${twitter.appSecret}")
+    String twitterAppSecret;
 
     @Autowired
     public SpringSecurityConfiguration(PasswordEncoder passwordEncoder,

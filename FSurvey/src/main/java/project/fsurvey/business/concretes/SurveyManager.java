@@ -2,7 +2,6 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,7 @@ public class SurveyManager implements project.fsurvey.business.abstracts.SurveyS
 
     @Override
     public ResponseEntity<DataResult<Survey>> add(SurveyDto surveyDto) {
+
         if(surveyDto.getIssue().isEmpty())
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ISSUES_CANNOT_BE_EMPTY")));
 

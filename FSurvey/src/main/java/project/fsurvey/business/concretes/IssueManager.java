@@ -2,6 +2,7 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project.fsurvey.business.abstracts.IssueService;
@@ -20,24 +21,26 @@ public class IssueManager implements IssueService {
     private IssueRepository issueRepository;
     private SurveyService surveyService;
     private IssueMapper issueMapper;
-
+    private Environment environment;
     @Autowired
     public IssueManager(IssueRepository issueRepository,
                         SurveyService surveyService,
-                        IssueMapper issueMapper) {
+                        IssueMapper issueMapper,
+                        Environment environment) {
         this.issueRepository = issueRepository;
         this.surveyService = surveyService;
         this.issueMapper = issueMapper;
+        this.environment = environment;
     }
 
     @Override
     public ResponseEntity<DataResult<Issue>> add(IssueDto issueDto) {
         if(!surveyService.existById(issueDto.getSurveyId()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No survey found with given id"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("SURVEY_NOT_FOUND")));
 
         Issue issue = issueMapper.toEntity(issueDto);
         issue.getOptions().forEach(option -> option.setIssue(issue));
-        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), "Data saved successfully."));
+        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), environment.getProperty("ISSUE_ADDED")));
     }
 
     @Override
@@ -52,33 +55,33 @@ public class IssueManager implements IssueService {
             issue.setQuestion(issueDto.getQuestion());
         }
 
-        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), "Data updated successfully."));
+        return ResponseEntity.ok(new SuccessDataResult<>(issueRepository.save(issue), environment.getProperty("ISSUE_UPDATED")));
     }
 
     @Override
     public ResponseEntity<DataResult<Issue>> findById(Long id) {
         Issue issue = issueRepository.findById(id).orElse(null);
         if(issue == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Issue not found with id " + id));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ISSUE_NOT_FOUND")));
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(issue, "Data found."));
+        return ResponseEntity.ok(new SuccessDataResult<>(issue, environment.getProperty("ISSUE_FOUND")));
     }
 
     @Override
     public ResponseEntity<DataResult<List<Issue>>> findBySurveyId(Long surveyId) {
         List<Issue> issues = issueRepository.findAllBySurveyId(surveyId);
         if(issues.isEmpty())
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No data were found."));
-        return ResponseEntity.ok(new SuccessDataResult<>(issues, "Data listed by survey id " + surveyId));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("ISSUE_NOT_FOUND_BY_SURVEY")));
+        return ResponseEntity.ok(new SuccessDataResult<>(issues, environment.getProperty("ISSUE_LISTED_BY_SURVEY")));
     }
 
     @Override
     public ResponseEntity<Result> delete(Long id) {
         Issue issue = issueRepository.findById(id).orElse(null);
         if(issue == null)
-            return ResponseEntity.badRequest().body(new ErrorResult("No issue were found with id " + id));
+            return ResponseEntity.badRequest().body(new ErrorResult(environment.getProperty("ISSUE_NOT_FOUND")));
         issue.setStatus(false);
         issueRepository.save(issue);
-        return ResponseEntity.ok(new SuccessResult("Issue deleted successfully"));
+        return ResponseEntity.ok(new SuccessResult(environment.getProperty("ISSUE_DELETED")));
     }
 }

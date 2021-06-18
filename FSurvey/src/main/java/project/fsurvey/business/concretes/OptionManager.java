@@ -2,6 +2,7 @@ package project.fsurvey.business.concretes;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +23,17 @@ public class OptionManager implements OptionService {
     private OptionRepository optionRepository;
     private IssueService issueService;
     private OptionMapper optionMapper;
+    private Environment environment;
 
     @Autowired
     public OptionManager(OptionRepository optionRepository,
                          IssueService issueService,
-                         OptionMapper optionMapper) {
+                         OptionMapper optionMapper,
+                         Environment environment) {
         this.optionRepository = optionRepository;
         this.issueService = issueService;
         this.optionMapper = optionMapper;
+        this.environment = environment;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class OptionManager implements OptionService {
         DataResult<Issue> result = issueService.findById(optionDto.getIssueId()).getBody();
         if(!result.isSuccess())
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No Issue found with given id: " + optionDto.getIssueId()
+                    environment.getProperty("ISSUE_NOT_FOUND")
             ));
 
         Option option = optionMapper.toEntity(optionDto);
@@ -48,7 +52,7 @@ public class OptionManager implements OptionService {
     public ResponseEntity<DataResult<Option>> update(Long id, OptionDto optionDto) {
         Option optionToUpdate = optionRepository.findById(id).orElse(null);
         if(optionToUpdate == null)
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No option found with given id" + id));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("OPTION_NOT_FOUND")));
 
         if(!Strings.isNullOrEmpty(optionDto.getAnswer()) &&
                 !optionToUpdate.getAnswer().equals(optionDto.getAnswer())){
@@ -56,7 +60,7 @@ public class OptionManager implements OptionService {
         }
         return ResponseEntity.ok(new SuccessDataResult<>(
                 optionRepository.save(optionToUpdate),
-                "Option updated successfully.")
+                environment.getProperty("OPTION_NOT_FOUND"))
         );
     }
 
@@ -64,7 +68,7 @@ public class OptionManager implements OptionService {
     public ResponseEntity<DataResult<Option>> findById(Long id) {
         Option option = optionRepository.findById(id).orElse(null);
         if(option == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("Option not found with id " + id));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("OPTION_NOT_FOUND")));
         }
         return ResponseEntity.ok(new SuccessDataResult<>(option, "Data found."));
     }
@@ -74,9 +78,9 @@ public class OptionManager implements OptionService {
         List<Option> options = optionRepository.findAllByIssueId(issueId);
         if(options.isEmpty()){
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(
-                    "No option were found by given issue id " + issueId)
+                    environment.getProperty("OPTION_NOT_FOUND_BY_ISSUE"))
             );
         }
-        return ResponseEntity.ok(new SuccessDataResult<>(options, "Answers listed by issue id " + issueId));
+        return ResponseEntity.ok(new SuccessDataResult<>(options, environment.getProperty("OPTION_LISTED_BY_ISSUE")));
     }
 }

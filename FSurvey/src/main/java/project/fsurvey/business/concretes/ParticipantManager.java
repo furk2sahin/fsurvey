@@ -73,17 +73,17 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
             );
 
         } else
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("User information is incorrect."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USER_INFORMATION_INCORRECT")));
     }
 
     @Override
     public ResponseEntity<DataResult<UserGetDto>> update(Long id, UserDto userPostDto) {
         if(userService.existsByUsername(userPostDto.getUsername()))
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("This username already exists."));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("USERNAME_ALREADY_TAKEN")));
 
         Participant participantToUpdate = participantRepository.findById(id).orElse(null);
         if(participantToUpdate == null){
-            return ResponseEntity.badRequest().body(new ErrorDataResult<>("No Participant found with given id"));
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("PARTICIPANT_NOT_FOUND")));
         }
         if(!Strings.isNullOrEmpty(userPostDto.getUsername()) &&
                 !participantToUpdate.getUsername().equals(userPostDto.getUsername())){
@@ -96,7 +96,7 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
 
         return ResponseEntity.ok(new SuccessDataResult<>(
                 participantMapper.participantToGetDto(participantRepository.save(participantToUpdate)),
-                "User updated successfully.")
+                environment.getProperty("USER_UPDATED"))
         );
     }
 
@@ -104,9 +104,9 @@ public class ParticipantManager implements project.fsurvey.business.abstracts.Pa
     public ResponseEntity<Result> delete(Long id) {
         if(participantRepository.existsById(id)){
             participantRepository.deleteById(id);
-            return ResponseEntity.ok(new SuccessResult("Participant deleted successfully."));
+            return ResponseEntity.ok(new SuccessResult(environment.getProperty("USER_DELETED")));
         } else{
-            return ResponseEntity.badRequest().body(new ErrorResult("Participant not found with given id."));
+            return ResponseEntity.badRequest().body(new ErrorResult(environment.getProperty("PARTICIPANT_NOT_FOUND")));
         }
     }
 
