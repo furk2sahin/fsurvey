@@ -9,7 +9,7 @@ import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.repositories.UserRepository;
 
 @Service
-public class UserManager implements UserService {
+public class UserManager implements UserService, UserDetailsService {
 
     private UserRepository userRepository;
 

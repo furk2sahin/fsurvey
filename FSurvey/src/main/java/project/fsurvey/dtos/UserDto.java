@@ -31,7 +31,7 @@ public class UserDto {
     @NotBlank(message = "National identity cannot be empty.")
     @Size(min = 11, max = 11, message = "National identity length must be 11.")
     @Pattern(regexp = "^[1-9][0-9]{9}[02468]$",
-            message = "National identity can't start with 0 or contain text.")
+            message = "Wrong national identity format!")
     private String nationalIdentity;
 
     @NotBlank

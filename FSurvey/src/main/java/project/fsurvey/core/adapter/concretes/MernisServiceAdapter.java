@@ -17,11 +17,10 @@ public class MernisServiceAdapter implements UserVerificationService {
         CUKKPSPublicSoap mernis = new CUKKPSPublicSoap();
         Locale tr = new Locale("tr", "TR");
         try {
-            return true;
-//            return mernis.TCKimlikNoDogrula(Long.parseLong(nationalIdentity),
-//                    name.toUpperCase(tr),
-//                    surname.toUpperCase(tr),
-//                    Integer.valueOf(birthYear));
+            return mernis.TCKimlikNoDogrula(Long.parseLong(nationalIdentity),
+                    name.toUpperCase(tr),
+                    surname.toUpperCase(tr),
+                    Integer.valueOf(birthYear));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@ public class AdminManager implements AdminService {
     private final AdminMapper adminMapper;
     private final UserService userService;
     private final Environment environment;
+
     @Autowired
     public AdminManager(AdminRepository adminRepository,
                         UserVerificationService userVerificationService,

@@ -23,6 +23,7 @@ import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 import project.fsurvey.business.abstracts.UserService;
 import project.fsurvey.business.concretes.CustomOAuth2UserService;
+import project.fsurvey.business.concretes.UserManager;
 import project.fsurvey.core.util.RoleParser;
 import project.fsurvey.entities.concretes.users.CustomOAuth2User;
 import project.fsurvey.entities.concretes.users.Participant;
@@ -38,7 +39,7 @@ import java.util.Arrays;
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private PasswordEncoder passwordEncoder;
-    private UserService userService;
+    private UserManager userService;
     private SocialConnectionSignup socialConnectionSignup;
     private CustomOAuth2UserService oAuth2UserService;
     private ParticipantRepository participantRepository;
@@ -57,7 +58,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public SpringSecurityConfiguration(PasswordEncoder passwordEncoder,
-                                       UserService userService,
+                                       UserManager userService,
                                        SocialConnectionSignup socialConnectionSignup,
                                        CustomOAuth2UserService oAuth2UserService,
                                        ParticipantRepository participantRepository) {
@@ -73,7 +74,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login*","/signin/**","/signup/**").permitAll()
+                .antMatchers("/login*","/signin/**","/signup/**", "/webjars/**", "/register", "/api/v1/participant/add", "favicon.ico").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

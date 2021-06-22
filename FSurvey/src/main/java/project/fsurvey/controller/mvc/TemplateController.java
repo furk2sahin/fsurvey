@@ -16,4 +16,9 @@ public class TemplateController {
     public String getWelcome(){
         return "welcome";
     }
+
+    @GetMapping("register")
+    public String register(){
+        return "register";
+    }
 }
