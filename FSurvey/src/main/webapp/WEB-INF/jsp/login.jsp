@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Login</title>
+    <title><spring:message code="LOGIN_BUTTON"/></title>
     <link rel="stylesheet" href="/webjars/bootstrap/4.3.1/css/bootstrap.min.css"/>
     <style>
         body{
@@ -32,17 +32,18 @@
             <button class="btn btn-lg btn-secondary btn-block" type="submit"><spring:message code="LOGIN_BUTTON"/></button>
         </form>
         <form action="/signin/facebook" method="POST">
-            <input type="hidden" name="scope" value="public_profile" />
             <input type="submit" value="<spring:message code="FACEBOOK_BUTTON"/>" class="btn btn-lg btn-primary btn-block"/>
         </form>
         <form action="/signin/twitter" method="POST">
-            <input type="hidden" name="scope" value="public_profile" />
             <input type="submit" value="<spring:message code="TWITTER_BUTTON"/>" class="btn btn-lg btn-primary btn-block"/>
         </form>
         <form action="/oauth2/authorization/google" method="POST">
-            <input type="hidden" name="scope" value="public_profile" />
             <input type="submit" value="<spring:message code="GOOGLE_BUTTON"/>" class="btn btn-lg btn-secondary btn-block"/>
         </form>
+        <div class="alert alert-warning" role="alert">
+            <spring:message code="DONT_HAVE_ACCOUNT"/>
+            <a href="/register"><spring:message code="REGISTER_BUTTON"/></a>
+        </div>
         <script type="text/javascript" src="/webjars/jquery/3.4.1/jquery.min.js"></script>
         <script type="text/javascript" src="/webjars/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </div>

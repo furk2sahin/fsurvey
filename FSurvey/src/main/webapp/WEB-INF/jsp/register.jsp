@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Login</title>
+    <title><spring:message code="REGISTER_BUTTON"/></title>
     <link rel="stylesheet" href="/webjars/bootstrap/4.3.1/css/bootstrap.min.css"/>
     <style>
         body{
@@ -48,6 +48,10 @@
         </p>
         <input class="btn btn-lg btn-primary btn-block" type="button" id="add_user" value="<spring:message code="REGISTER_BUTTON"/>">
     </form>
+    <div class="alert alert-warning" role="alert">
+        <spring:message code="HAVE_AN_ACCOUNT"/>
+            <a href="/login"><spring:message code="LOGIN_BUTTON"/></a>
+    </div>
     <div class="alert alert-danger" role="alert" id="errors"/>
     <div class="alert alert-success" role="alert" id="success"/>
     <script type="text/javascript" src="/webjars/jquery/3.4.1/jquery.min.js"></script>
