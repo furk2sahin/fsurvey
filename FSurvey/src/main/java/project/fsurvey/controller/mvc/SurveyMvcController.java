@@ -2,6 +2,7 @@ package project.fsurvey.controller.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import project.fsurvey.business.abstracts.SurveyService;
@@ -16,10 +17,10 @@ public class SurveyMvcController {
         this.surveyService = surveyService;
     }
 
-    @RequestMapping("/admin-survey-page")
-    public ModelAndView getSurveys(){
+    @RequestMapping("/admin-survey-page/{pageNo}/{pageSize}")
+    public ModelAndView getSurveysPageable(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize") int pageSize){
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("surveys", surveyService.findAll().getBody().getData());
+        modelAndView.addObject("pagedSurveys", surveyService.findAllPageable(pageNo, pageSize).getBody().getData());
         modelAndView.setViewName("adminSurveyPage");
         return modelAndView;
     }

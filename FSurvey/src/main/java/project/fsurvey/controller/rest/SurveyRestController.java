@@ -36,9 +36,23 @@ public class SurveyRestController {
         return surveyService.findAll();
     }
 
+    @GetMapping("/get-all-pageable/{pageNo}/{pageSize}")
+    @PreAuthorize("hasAuthority('read:survey')")
+    public ResponseEntity<DataResult<List<Survey>>> findAllPageable(@PathVariable("pageNo") int pageNo,
+                                                             @PathVariable("pageSize") int pageSize){
+        return surveyService.findAllPageable(pageNo, pageSize);
+    }
+
+    @GetMapping("/count")
+    //@PreAuthorize("hasAuthority('read:survey')")
+    public Long count(){
+        return surveyService.surveyCount();
+    }
+
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DataResult<Survey>> add(@RequestBody @Valid SurveyDto survey){
+        System.out.println(survey);
         return surveyService.add(survey);
     }
 
@@ -54,4 +68,6 @@ public class SurveyRestController {
     public ResponseEntity<Result> delete(@PathVariable("id") Long id){
         return surveyService.delete(id);
     }
+
+
 }

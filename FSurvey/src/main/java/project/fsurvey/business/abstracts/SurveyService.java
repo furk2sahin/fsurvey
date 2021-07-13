@@ -13,7 +13,9 @@ public interface SurveyService{
     ResponseEntity<DataResult<Survey>> update(Long id, SurveyDto surveyDto);
     ResponseEntity<DataResult<Survey>> findById(Long id);
     ResponseEntity<DataResult<List<Survey>>> findAll();
+    ResponseEntity<DataResult<List<Survey>>> findAllPageable(int pageNo, int pageSize);
     ResponseEntity<Result> delete(Long id);
+    Long surveyCount();
     boolean existById(Long id);
 
 }

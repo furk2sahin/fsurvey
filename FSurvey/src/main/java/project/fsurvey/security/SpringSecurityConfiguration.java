@@ -71,24 +71,28 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] permittedLinks = {"/login*","/signin/**","/signup/**", "/webjars/**",
+                "/register", "/api/v1/participant/add", "/favicon.ico", "/admin-survey-page/**",
+                "/create-new-survey", "/api/v1/survey/count"};
+
+        String loginPage = "/login";
+
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login*","/signin/**","/signup/**", "/webjars/**",
-                        "/register", "/api/v1/participant/add", "favicon.ico", "/admin-survey-page",
-                        "/create-new-survey").permitAll()
+                .antMatchers(permittedLinks).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                   .formLogin().loginPage("/login").permitAll()
-                     .defaultSuccessUrl("/welcome")
+                   .formLogin().loginPage(loginPage).permitAll()
+                     .defaultSuccessUrl("/admin-survey-page/1/5")
                      .and()
                       .logout()
                       .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                      .logoutSuccessUrl("/login").permitAll()
+                      .logoutSuccessUrl(loginPage).permitAll()
                 .and()
                 .oauth2Login()
-                    .loginPage("/login")
+                    .loginPage(loginPage)
                     .userInfoEndpoint()
                     .userService(oAuth2UserService)
                     .and()

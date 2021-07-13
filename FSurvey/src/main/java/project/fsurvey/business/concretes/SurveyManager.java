@@ -3,6 +3,8 @@ package project.fsurvey.business.concretes;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project.fsurvey.core.results.*;
@@ -93,7 +95,23 @@ public class SurveyManager implements project.fsurvey.business.abstracts.SurveyS
             return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("SURVEY_NOT_FOUND")));
         }
         return ResponseEntity.ok(new SuccessDataResult<>(surveys,
-                environment.getProperty(environment.getProperty("SURVEY_LISTED"))));
+                environment.getProperty("SURVEY_LISTED")));
+    }
+
+    @Override
+    public ResponseEntity<DataResult<List<Survey>>> findAllPageable(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        List<Survey> surveys = surveyRepository.findAll(pageable).getContent();
+        if(surveys.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorDataResult<>(environment.getProperty("SURVEY_NOT_FOUND")));
+        }
+        return ResponseEntity.ok(new SuccessDataResult<>(surveys,
+                environment.getProperty("SURVEY_LISTED")));
+    }
+
+    @Override
+    public Long surveyCount() {
+        return surveyRepository.count();
     }
 
     @Override
